@@ -184,7 +184,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
 				float3 normalDir : TEXCOORD2;
 				float3 tangentDir : TEXCOORD3;
 				float3 bitangentDir : TEXCOORD4;
-				float4 lightDir : TEXCOORD6; // AutoLight took 5 already
+				float4 lightDir : TEXCOORD7;
 				LIGHTING_COORDS(5,6)
 			};
 

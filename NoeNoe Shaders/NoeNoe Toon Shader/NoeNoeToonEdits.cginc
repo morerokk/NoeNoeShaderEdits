@@ -26,7 +26,7 @@ struct VertexOutput {
 	float3 normalDir : TEXCOORD2;
 	float3 tangentDir : TEXCOORD3;
 	float3 bitangentDir : TEXCOORD4;
-	float4 lightDir : TEXCOORD6; // AutoLight took 5 already
+	float4 lightDir : TEXCOORD7; // AutoLight took 5 and 6 already
 	LIGHTING_COORDS(5,6)
 };
 

@@ -28,5 +28,6 @@ Using other colors might result in unexpected behavior.
 For performance reasons, make the mask texture as small as you can without any quality loss. A 4096x4096 mask texture can often easily be set to import at a much lower resolutions in Unity (such as 256x256),
 without any loss in quality. Crunch compression will also make a large difference in filesize without sacrificing quality.
 
-A premade skin-colored toon ramp is included ("toon_skin_arlvit"). You can use toon ramps from other sources, such as MMD. Keep in mind that this shader expects a horizontal toon ramp, with dark on the left and light on the right. MMD toon ramps will probably have to be rotated 90 degrees clockwise.
-You should also set the texture mode to "Clamp" in Unity to avoid very ugly artifacts.
+A premade skin-colored toon ramp is included ("toon_skin_hq"). You can use toon ramps from other sources, such as MMD. The shader normally expects a horizontal toon ramp, with dark on the left and light on the right. However, vertical toon ramps with dark on the bottom and light on the top will also work. This means you can also use MMD toon ramps as-is.
+
+You should set the texture mode to "Clamp" in Unity on the toon ramp texture, to avoid very ugly artifacts.

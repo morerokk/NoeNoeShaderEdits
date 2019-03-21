@@ -26,7 +26,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout" {
                 "LightMode"="ForwardBase"
             }
             
-			Cull [_Cull]            
+			Cull [_Cull]
             
             CGPROGRAM
             #pragma vertex vert
