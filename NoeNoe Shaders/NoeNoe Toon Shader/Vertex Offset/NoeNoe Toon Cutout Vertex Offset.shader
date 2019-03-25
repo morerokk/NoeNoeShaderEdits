@@ -176,7 +176,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
 				float3 normalDir : TEXCOORD2;
 				float3 tangentDir : TEXCOORD3;
 				float3 bitangentDir : TEXCOORD4;
-				float4 lightDir : TEXCOORD6; // AutoLight took 5 already
+				float4 lightDir : TEXCOORD7; // AutoLight took 5 already
 				LIGHTING_COORDS(5,6)
 			};
 
@@ -532,7 +532,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
 				float3 normalDir : TEXCOORD2;
 				float3 tangentDir : TEXCOORD3;
 				float3 bitangentDir : TEXCOORD4;
-				float4 lightDir : TEXCOORD6; // AutoLight took 5 already
+				float4 lightDir : TEXCOORD7; // AutoLight took 5 already
 				LIGHTING_COORDS(5,6)
 			};
 
