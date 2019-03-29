@@ -25,10 +25,10 @@ An entirely new and slightly experimental "Ramp Masked" shader has been added. T
 To use this feature, you have to first make a copy of the texture. Open the copy in any image editor, such as GIMP or even paint. Give every area of the texture its own solid
 color, depending on the toon ramp setup you need. The shader supports the following four colors:
 
-Black: default settings
-Red: R settings
-Green: G settings
-Blue: B settings
+Black: default settings  
+Red: R settings  
+Green: G settings  
+Blue: B settings  
 
 Using other colors might result in unexpected behavior.
 

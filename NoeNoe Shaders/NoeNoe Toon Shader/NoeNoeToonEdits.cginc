@@ -1,12 +1,35 @@
 float _WorldLightIntensity;
 
+float3 GIsonarDirection()
+{
+    float3 GIsonar_dir_vec = (unity_SHAr.xyz*unity_SHAr.w + unity_SHAg.xyz*unity_SHAg.w + unity_SHAb.xyz*unity_SHAb.w);
+
+    UNITY_FLATTEN
+    if ( length( GIsonar_dir_vec) > 0)
+    {GIsonar_dir_vec = Unity_SafeNormalize(GIsonar_dir_vec);}
+    else 
+    {GIsonar_dir_vec = float3(0,0,0);}
+    return GIsonar_dir_vec;
+}
+
 float4 lightDirection(float4 fallback, float alwaysUseFallback)
 {
-	// Try to get world light direction
+	// Try to get world light direction from realtime directional light.
 	float4 worldLightDir = _WorldSpaceLightPos0 * _WorldLightIntensity;
 	if(all(worldLightDir == float4(0,0,0,0)))
 	{
-		worldLightDir = fallback;
+		// No realtime directional lights. Try to use GI Sonar.
+		float3 sonar = GIsonarDirection();
+		UNITY_FLATTEN
+		if(all(sonar == float3(0,0,0)))
+		{
+			worldLightDir = fallback;
+		}
+		else
+		{
+			worldLightDir = float4(sonar, 0);
+			worldLightDir *= _WorldLightIntensity;
+		}
 	}
 	return lerp(worldLightDir, fallback, alwaysUseFallback);
 }
