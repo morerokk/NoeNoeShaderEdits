@@ -17,8 +17,6 @@ VertexOutputShadow vertShadow (VertexInputShadow v) {
 }
 
 float4 fragShadow(VertexOutputShadow i, float facing : VFACE) : COLOR {
-	float isFrontFace = ( facing >= 0 ? 1 : 0 );
-	float faceSign = ( facing >= 0 ? 1 : -1 );
 	float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
 	float SurfaceAlpha = _MainTex_var.a;
 	clip(SurfaceAlpha - _Cutoff);

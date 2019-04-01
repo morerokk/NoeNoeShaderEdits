@@ -1,14 +1,39 @@
 float _WorldLightIntensity;
 
+#ifdef NOENOETOON_RAMP_MASKING
+	uniform sampler2D _RampMaskTex;
+	uniform sampler2D _RampR;
+	uniform float _ToonContrastR;	
+	uniform sampler2D _RampG;
+	uniform float _ToonContrastG;
+	uniform sampler2D _RampB;
+	uniform float _ToonContrastB;
+	
+	uniform float _IntensityR;
+	uniform float _SaturationR;
+	uniform float _IntensityG;
+	uniform float _SaturationG;
+	uniform float _IntensityB;
+	uniform float _SaturationB;
+#endif
+
+sampler2D _MetallicGlossMap;
+float _Metallic;
+float _Glossiness;
+
 float3 GIsonarDirection()
 {
     float3 GIsonar_dir_vec = (unity_SHAr.xyz*unity_SHAr.w + unity_SHAg.xyz*unity_SHAg.w + unity_SHAb.xyz*unity_SHAb.w);
 
     UNITY_FLATTEN
     if ( length( GIsonar_dir_vec) > 0)
-    {GIsonar_dir_vec = Unity_SafeNormalize(GIsonar_dir_vec);}
+    {
+		GIsonar_dir_vec = Unity_SafeNormalize(GIsonar_dir_vec);
+	}
     else 
-    {GIsonar_dir_vec = float3(0,0,0);}
+    {
+		GIsonar_dir_vec = float3(0,0,0);
+	}
     return GIsonar_dir_vec;
 }
 
@@ -16,7 +41,7 @@ float4 lightDirection(float4 fallback, float alwaysUseFallback)
 {
 	// Try to get world light direction from realtime directional light.
 	float4 worldLightDir = _WorldSpaceLightPos0 * _WorldLightIntensity;
-	if(all(worldLightDir == float4(0,0,0,0)))
+	if(all(worldLightDir.xyz == 0))
 	{
 		// No realtime directional lights. Try to use GI Sonar.
 		float3 sonar = GIsonarDirection();
@@ -34,6 +59,10 @@ float4 lightDirection(float4 fallback, float alwaysUseFallback)
 	return lerp(worldLightDir, fallback, alwaysUseFallback);
 }
 
+float3 FlatLightSH(float3 normal)
+{
+	return ShadeSH9(half4(normal, 1.0));
+}
 
 struct VertexInput {
 	float4 vertex : POSITION;
@@ -49,8 +78,9 @@ struct VertexOutput {
 	float3 normalDir : TEXCOORD2;
 	float3 tangentDir : TEXCOORD3;
 	float3 bitangentDir : TEXCOORD4;
-	float4 lightDir : TEXCOORD7; // AutoLight took 5 and 6 already
 	LIGHTING_COORDS(5,6)
+	float4 lightDir : TEXCOORD7; // AutoLight took 5 and 6 already
+	float3 viewDir : TEXCOORD8;
 };
 
 VertexOutput vert (VertexInput v) {
@@ -64,6 +94,7 @@ VertexOutput vert (VertexInput v) {
 	
 	o.pos = UnityObjectToClipPos(v.vertex);
 	o.lightDir = lightDirection(_StaticToonLight, _OverrideWorldLight);
+	o.viewDir = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld, v.vertex).xyz);
 	TRANSFER_VERTEX_TO_FRAGMENT(o)
 	return o;
 }
@@ -82,9 +113,28 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	float3 _NormalMap_var = UnpackNormal(tex2D(_NormalMap,TRANSFORM_TEX(i.uv0, _NormalMap)));
 	float3 normalLocal = _NormalMap_var.rgb;
 	float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
-	float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
+	
+	//Turn texture property into variable
+	#ifdef NOENOETOON_OUTLINE_PASS
+		sampler2D mainTexture = _OutlineTex;
+		float4 mainTexture_ST = _OutlineTex_ST;
+		float4 mainColor = _OutlineColor;
+	#else
+		sampler2D mainTexture = _MainTex;
+		float4 mainTexture_ST = _MainTex_ST;
+		float4 mainColor = _Color;
+	#endif
+	
+	float4 _MainTex_var = tex2D(mainTexture,TRANSFORM_TEX(i.uv0, mainTexture));
 	float SurfaceAlpha = _MainTex_var.a;
-	clip(SurfaceAlpha - _Cutoff);
+	
+	#ifdef NOENOETOON_OUTLINE_PASS
+		// Only clip if outline cutout is on
+		clip(SurfaceAlpha - _Cutoff + (1 - _OutlineCutout));
+	#else
+		clip(SurfaceAlpha - _Cutoff);
+	#endif
+	
 	float3 lightColor = _LightColor0.rgb;
 ////// Lighting:
 	float attenuation = LIGHT_ATTENUATION(i) / SHADOW_ATTENUATION(i);
@@ -95,14 +145,14 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		float3 emissive = MappedEmissive;
 	#endif
 	
-	float3 FlatLighting = saturate((Function_node_3693( float3(0,1,0) )+(_LightColor0.rgb*attenuation)));
-	float3 MappedTexture = (_MainTex_var.rgb*_Color.rgb);
+	float3 FlatLighting = saturate((FlatLightSH( float3(0,1,0) )+(_LightColor0.rgb*attenuation)));
+	float3 MappedTexture = (_MainTex_var.rgb*mainColor.rgb);
 	
 	#ifdef NOENOETOON_RAMP_MASKING
 		// Masking for saturation and intensity
 		float SaturationVar;
 		float IntensityVar;
-		float4 maskColor = tex2D(_RampMaskTex,TRANSFORM_TEX(i.uv0, _MainTex));
+		float4 maskColor = tex2D(_RampMaskTex,TRANSFORM_TEX(i.uv0, mainTexture));
 		if(maskColor.r > 0.5) {
 			SaturationVar = _SaturationR;
 			IntensityVar = _IntensityR;
@@ -122,6 +172,23 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	#endif
 	
 	float3 Diffuse = lerp(lerp(MappedTexture,dot(MappedTexture,float3(0.3,0.59,0.11)),(-0.5)),dot(lerp(MappedTexture,dot(MappedTexture,float3(0.3,0.59,0.11)),(-0.5)),float3(0.3,0.59,0.11)),(1.0 - SaturationVar));
+	
+	#ifdef UNITY_PASS_FORWARDBASE
+		//Reflections
+		float4 metallicTex = tex2D(_MetallicGlossMap, TRANSFORM_TEX(i.uv0, mainTexture));
+		float metallic = metallicTex.r * _Metallic;
+		float roughness = 1 - (metallicTex.a * _Glossiness);
+		
+		float3 reflectedDir = reflect(-i.viewDir, normalize(i.normalDir));
+		float4 reflectionData = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflectedDir, roughness * UNITY_SPECCUBE_LOD_STEPS);
+		float3 reflectionColor = DecodeHDR(reflectionData, unity_SpecCube0_HDR);
+		
+		reflectionColor *= Diffuse;
+		
+		//Lit reflections
+		//Diffuse = lerp(Diffuse, reflectionColor, metallic);
+	#endif
+	
 	float node_424 = 0.5;
 	float node_7394_if_leA = step(_BillboardStaticLight,1.0);
 	float node_7394_if_leB = step(1.0,_BillboardStaticLight);
@@ -161,7 +228,13 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	float3 StaticToonLighting = node_9498.rgb;
 	float3 finalColor = saturate(((IntensityVar*FlatLighting*Diffuse) > 0.5 ?  (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) );
 	
+	// Apply unlit reflections
 	#ifdef UNITY_PASS_FORWARDBASE
+		// TODO: If reflecting the skybox rather than a probe, dim the reflection.
+		// Is that even possible? If so, tell me how ;)
+		finalColor = lerp(finalColor, reflectionColor, metallic);
+		
+		// Apply emission
 		finalColor = emissive + finalColor;
 	#endif
 	
@@ -170,11 +243,11 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	// Transparent stuff, use alpha and multiply by opacity
 	// Forward additive pass multiplies the colors instead
 	#ifdef NOENOETOON_TRANSPARENT
-		#ifdef UNITY_PASS_FORWARDBASE
-			finalAlpha = _MainTex_var.a * _Opacity;
-		#else
+		#ifdef UNITY_PASS_FORWARDADD
 			finalAlpha = 0;
-			finalColor *= (SurfaceAlpha * _Opacity);
+			finalColor *= (SurfaceAlpha * _Opacity);	
+		#else
+			finalAlpha = _MainTex_var.a * _Opacity;
 		#endif
 	#endif
 	

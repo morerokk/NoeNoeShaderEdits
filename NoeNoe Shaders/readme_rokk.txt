@@ -1,5 +1,6 @@
 This pack features a bunch of edits of Noenoe shaders. All edits have been done to the "Toon" subsection. The Overlay shaders (including PBR) are unchanged.
 
+- Every shader now has Metallic support
 - Every shader now has an alpha cutoff slider, even Transparent
 - Every shader now has a sidedness selection (front sided, back sided, double-sided)
 - Renamed Opaque to Cutout to be more compatible with the shader fallback system
@@ -31,3 +32,5 @@ without any loss in quality. Crunch compression will also make a large differenc
 A premade skin-colored toon ramp is included ("toon_skin_hq"). You can use toon ramps from other sources, such as MMD. The shader normally expects a horizontal toon ramp, with dark on the left and light on the right. However, vertical toon ramps with dark on the bottom and light on the top will also work. This means you can also use MMD toon ramps as-is.
 
 You should set the texture mode to "Clamp" in Unity on the toon ramp texture, to avoid very ugly artifacts.
+
+Experimental Metallic support has been added. You can use the same metallic maps as in Standard (Red is Metallic, Alpha is Smoothness). Smoothness doesn't do anything by itself, lower smoothness only blurs the reflections on the Metallic. Reflections work the same way as Standard, but blending between multiple probes is not yet supported. This will come in the next version.

@@ -17,6 +17,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.0
 		// Double-sidedness is sometimes wonky with transparency, use with caution.
 		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 2
+		[NoScaleOffset]_MetallicGlossMap("Metallic Map", 2D) = "white" {}
+		_Metallic("Metallic", Range( 0 , 1)) = 0
+		_Glossiness("Smoothness", Range( 0 , 1)) = 0
 		[Toggle(_)] _ZWrite("ZWrite", Float) = 1
     }
     SubShader {
@@ -54,10 +57,6 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
             uniform float _Emission;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
-            float3 Function_node_3693( float3 normal ){
-            return ShadeSH9(half4(normal, 1.0));
-            
-            }
 			
 			float _Cutoff;
 			
@@ -120,10 +119,6 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
             uniform float _Emission;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
-            float3 Function_node_3693( float3 normal ){
-            return ShadeSH9(half4(normal, 1.0));
-            
-            }
 			
 			float _Cutoff;
 			

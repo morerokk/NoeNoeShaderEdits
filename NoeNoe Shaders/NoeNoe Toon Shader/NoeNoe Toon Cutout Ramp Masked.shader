@@ -15,6 +15,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
         _NormalMap ("Normal Map", 2D) = "bump" {}
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
 		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 2
+		[NoScaleOffset]_MetallicGlossMap("Metallic Map", 2D) = "white" {}
+		_Metallic("Metallic", Range( 0 , 1)) = 0
+		_Glossiness("Smoothness", Range( 0 , 1)) = 0
 		[NoScaleOffset] _RampMaskTex ("Ramp Mask", 2D) = "black"
 		[NoScaleOffset] _RampR ("Ramp (R)", 2D) = "white" {}
 		_ToonContrastR ("Toon Contrast (R)", Range(0, 1)) = 0.25
@@ -62,29 +65,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
 			
-            float3 Function_node_3693( float3 normal ){
-            return ShadeSH9(half4(normal, 1.0));
-            
-            }
-			
 			float _Cutoff;
 			
 			float _OverrideWorldLight;
-			
-			uniform sampler2D _RampMaskTex;
-			uniform sampler2D _RampR;
-			uniform float _ToonContrastR;	
-			uniform sampler2D _RampG;
-			uniform float _ToonContrastG;
-			uniform sampler2D _RampB;
-			uniform float _ToonContrastB;
-			
-			uniform float _IntensityR;
-			uniform float _SaturationR;
-			uniform float _IntensityG;
-			uniform float _SaturationG;
-			uniform float _IntensityB;
-			uniform float _SaturationB;			
             
             uniform float4 _StaticToonLight;
             uniform sampler2D _Ramp; uniform float4 _Ramp_ST;
@@ -140,29 +123,10 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             uniform float _Emission;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
-            float3 Function_node_3693( float3 normal ){
-            return ShadeSH9(half4(normal, 1.0));
-            
-            }
 			
 			float _Cutoff;
 			
 			float _OverrideWorldLight;
-			
-			uniform sampler2D _RampMaskTex;
-			uniform sampler2D _RampR;
-			uniform float _ToonContrastR;	
-			uniform sampler2D _RampG;
-			uniform float _ToonContrastG;
-			uniform sampler2D _RampB;
-			uniform float _ToonContrastB;
-			
-			uniform float _IntensityR;
-			uniform float _SaturationR;
-			uniform float _IntensityG;
-			uniform float _SaturationG;
-			uniform float _IntensityB;
-			uniform float _SaturationB;
             
             uniform float4 _StaticToonLight;
             uniform sampler2D _Ramp; uniform float4 _Ramp_ST;
