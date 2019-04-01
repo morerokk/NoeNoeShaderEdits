@@ -180,13 +180,31 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		float roughness = 1 - (metallicTex.a * _Glossiness);
 		
 		float3 reflectedDir = reflect(-i.viewDir, normalize(i.normalDir));
-		float4 reflectionData = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflectedDir, roughness * UNITY_SPECCUBE_LOD_STEPS);
-		float3 reflectionColor = DecodeHDR(reflectionData, unity_SpecCube0_HDR);
+		
+		float3 reflectionColor;
+		
+		//Sample second probe if available.
+		float interpolator = unity_SpecCube0_BoxMin.w;
+		UNITY_BRANCH
+		if(interpolator < 0.99999)
+		{
+			//Probe 1
+			float4 reflectionData0 = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflectedDir, roughness * UNITY_SPECCUBE_LOD_STEPS);
+			float3 reflectionColor0 = DecodeHDR(reflectionData0, unity_SpecCube0_HDR);
+
+			//Probe 2
+			float4 reflectionData1 = UNITY_SAMPLE_TEXCUBE_SAMPLER_LOD(unity_SpecCube1, unity_SpecCube0, reflectedDir, roughness * UNITY_SPECCUBE_LOD_STEPS);
+			float3 reflectionColor1 = DecodeHDR(reflectionData1, unity_SpecCube1_HDR);
+
+			reflectionColor = lerp(reflectionColor1, reflectionColor0, interpolator);
+		}
+		else
+		{
+			float4 reflectionData = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflectedDir, roughness * UNITY_SPECCUBE_LOD_STEPS);
+			reflectionColor = DecodeHDR(reflectionData, unity_SpecCube0_HDR);
+		}
 		
 		reflectionColor *= Diffuse;
-		
-		//Lit reflections
-		//Diffuse = lerp(Diffuse, reflectionColor, metallic);
 	#endif
 	
 	float node_424 = 0.5;

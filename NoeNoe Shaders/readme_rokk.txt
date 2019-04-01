@@ -33,4 +33,4 @@ A premade skin-colored toon ramp is included ("toon_skin_hq"). You can use toon 
 
 You should set the texture mode to "Clamp" in Unity on the toon ramp texture, to avoid very ugly artifacts.
 
-Experimental Metallic support has been added. You can use the same metallic maps as in Standard (Red is Metallic, Alpha is Smoothness). Smoothness doesn't do anything by itself, lower smoothness only blurs the reflections on the Metallic. Reflections work the same way as Standard, but blending between multiple probes is not yet supported. This will come in the next version.
+Experimental Metallic support has been added. You can use the same metallic maps as in Standard (Red is Metallic, Alpha is Smoothness). Smoothness doesn't do anything by itself, lower smoothness only blurs the reflections on the Metallic. Reflections work the same way as Standard.
