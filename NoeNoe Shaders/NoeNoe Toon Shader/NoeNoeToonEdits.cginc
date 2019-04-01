@@ -178,6 +178,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		float4 metallicTex = tex2D(_MetallicGlossMap, TRANSFORM_TEX(i.uv0, mainTexture));
 		float metallic = metallicTex.r * _Metallic;
 		float roughness = 1 - (metallicTex.a * _Glossiness);
+		roughness *= 1.7 - 0.7 * roughness;
 		
 		float3 reflectedDir = reflect(-i.viewDir, normalize(i.normalDir));
 		
