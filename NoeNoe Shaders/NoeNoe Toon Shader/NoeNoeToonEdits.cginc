@@ -173,10 +173,12 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	
 	float3 Diffuse = lerp(lerp(MappedTexture,dot(MappedTexture,float3(0.3,0.59,0.11)),(-0.5)),dot(lerp(MappedTexture,dot(MappedTexture,float3(0.3,0.59,0.11)),(-0.5)),float3(0.3,0.59,0.11)),(1.0 - SaturationVar));
 	
+	//Reflections
+	float4 metallicTex = tex2D(_MetallicGlossMap, TRANSFORM_TEX(i.uv0, mainTexture));
+	float metallic = metallicTex.r * _Metallic;
+	
 	#ifdef UNITY_PASS_FORWARDBASE
-		//Reflections
-		float4 metallicTex = tex2D(_MetallicGlossMap, TRANSFORM_TEX(i.uv0, mainTexture));
-		float metallic = metallicTex.r * _Metallic;
+		//Unlit reflections in ForwardBase
 		float roughness = 1 - (metallicTex.a * _Glossiness);
 		roughness *= 1.7 - 0.7 * roughness;
 		
@@ -255,6 +257,11 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		
 		// Apply emission
 		finalColor = emissive + finalColor;
+	#endif
+	
+	// To avoid drowning out metallic in bright light, decrease forwardadd output as things get more metallic.
+	#ifdef UNITY_PASS_FORWARDADD
+		finalColor *= (1 - metallic);
 	#endif
 	
 	float finalAlpha = 1;
