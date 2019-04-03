@@ -6,7 +6,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
 		_WorldLightIntensity ("World Light Dir Multiplier", Range(0, 10)) = 1
 		[Toggle(_)] _OverrideWorldLight ("Override World Light", Float) = 0
         [Toggle(_)] _BillboardStaticLight ("Billboard Static Light", Float ) = 0
-        _Ramp ("Ramp", 2D) = "white" {}
+        _RealRamp ("Ramp", 2D) = "white" {}
         _ToonContrast ("Toon Contrast", Range(0, 1)) = 0.25
         _EmissionMap ("Emission Map", 2D) = "white" {}
         _Emission ("Emission", Range(0, 10)) = 0
@@ -21,6 +21,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
 		_Metallic("Metallic", Range( 0 , 1)) = 0
 		_Glossiness("Smoothness", Range( 0 , 1)) = 0
 		[Toggle(_)] _ZWrite("ZWrite", Float) = 1
+		_Ramp ("Fallback Ramp", 2D) = "white" {}
     }
     SubShader {
         Tags {
@@ -63,7 +64,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
 			float _OverrideWorldLight;
             
             uniform float4 _StaticToonLight;
-            uniform sampler2D _Ramp; uniform float4 _Ramp_ST;
+            uniform sampler2D _RealRamp; uniform float4 _RealRamp_ST;
             float3 VRViewPosition(){
             #if defined(USING_STEREO_MATRICES)
             float3 leftEye = unity_StereoWorldSpaceCameraPos[0];
@@ -125,7 +126,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
 			float _OverrideWorldLight;
             
             uniform float4 _StaticToonLight;
-            uniform sampler2D _Ramp; uniform float4 _Ramp_ST;
+            uniform sampler2D _RealRamp; uniform float4 _RealRamp_ST;
             float3 VRViewPosition(){
             #if defined(USING_STEREO_MATRICES)
             float3 leftEye = unity_StereoWorldSpaceCameraPos[0];

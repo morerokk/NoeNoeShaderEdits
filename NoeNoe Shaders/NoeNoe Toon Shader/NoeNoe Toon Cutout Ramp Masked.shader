@@ -6,7 +6,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 		_WorldLightIntensity ("World Light Dir Multiplier", Range(0, 10)) = 1
 		[Toggle(_)] _OverrideWorldLight ("Override World Light", Float) = 0
         [Toggle(_)] _BillboardStaticLight ("Billboard Static Light", Float ) = 0
-        _Ramp ("Default Ramp", 2D) = "white" {}
+        _RealRamp ("Default Ramp", 2D) = "white" {}
         _ToonContrast ("Default Toon Contrast", Range(0, 1)) = 0.25
         _EmissionMap ("Emission Map", 2D) = "white" {}
         _Emission ("Emission", Range(0, 10)) = 0
@@ -31,6 +31,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 		_ToonContrastB ("Toon Contrast (B)", Range(0, 1)) = 0.25
         _IntensityB ("Intensity (B)", Range(0, 10)) = 0.8
         _SaturationB ("Saturation (B)", Range(0, 1)) = 0.65
+		_Ramp ("Fallback Ramp", 2D) = "white" {}
     }
     SubShader {
         Tags {
@@ -70,7 +71,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 			float _OverrideWorldLight;
             
             uniform float4 _StaticToonLight;
-            uniform sampler2D _Ramp; uniform float4 _Ramp_ST;
+            uniform sampler2D _RealRamp; uniform float4 _RealRamp_ST;
             float3 VRViewPosition(){
             #if defined(USING_STEREO_MATRICES)
             float3 leftEye = unity_StereoWorldSpaceCameraPos[0];
@@ -129,7 +130,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 			float _OverrideWorldLight;
             
             uniform float4 _StaticToonLight;
-            uniform sampler2D _Ramp; uniform float4 _Ramp_ST;
+            uniform sampler2D _RealRamp; uniform float4 _RealRamp_ST;
             float3 VRViewPosition(){
             #if defined(USING_STEREO_MATRICES)
             float3 leftEye = unity_StereoWorldSpaceCameraPos[0];

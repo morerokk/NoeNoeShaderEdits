@@ -229,20 +229,20 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		float4 node_9498;
 		float ToonContrast_var;
 		if(maskColor.r > 0.5) {
-			node_9498 = tex2D(_RampR,TRANSFORM_TEX(node_8091, _Ramp));
+			node_9498 = tex2D(_RampR,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastR;
 		} else if(maskColor.g > 0.5) {
-			node_9498 = tex2D(_RampG,TRANSFORM_TEX(node_8091, _Ramp));
+			node_9498 = tex2D(_RampG,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastG;
 		} else if(maskColor.b > 0.5) {
-			node_9498 = tex2D(_RampB,TRANSFORM_TEX(node_8091, _Ramp));
+			node_9498 = tex2D(_RampB,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastB;
 		} else {				
-			node_9498 = tex2D(_Ramp,TRANSFORM_TEX(node_8091, _Ramp));
+			node_9498 = tex2D(_RealRamp,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrast;
 		}
 	#else
-		float4 node_9498 = tex2D(_Ramp,TRANSFORM_TEX(node_8091, _Ramp));
+		float4 node_9498 = tex2D(_RealRamp,TRANSFORM_TEX(node_8091, _RealRamp));
 		float ToonContrast_var = _ToonContrast;
 	#endif
 	

@@ -2,7 +2,18 @@ fileFormatVersion: 2
 guid: c07aecd8747d7264b882b7f64483f7eb
 ShaderImporter:
   externalObjects: {}
-  defaultTextures: []
+  defaultTextures:
+  - _MainTex: {instanceID: 0}
+  - _RealRamp: {fileID: 2800000, guid: dda255c6e7ca25c4da940fccb27f832d, type: 3}
+  - _EmissionMap: {instanceID: 0}
+  - _NormalMap: {instanceID: 0}
+  - _MetallicGlossMap: {instanceID: 0}
+  - _OutlineTex: {instanceID: 0}
+  - _RampMaskTex: {instanceID: 0}
+  - _RampR: {instanceID: 0}
+  - _RampG: {instanceID: 0}
+  - _RampB: {instanceID: 0}
+  - _Ramp: {fileID: 2800000, guid: 3281e7d3927047d42bdf0e9d5d4501ed, type: 3}
   userData: 
   assetBundleName: 
   assetBundleVariant: 
