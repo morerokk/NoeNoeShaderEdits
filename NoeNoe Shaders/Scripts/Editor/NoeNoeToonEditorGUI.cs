@@ -50,6 +50,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty outlineStencilComp = null;
     private MaterialProperty outlineCutout = null;
 
+    //Vertex offset stuff
+    private MaterialProperty vertexOffset = null;
+    private MaterialProperty vertexRotation = null;
+    private MaterialProperty vertexScale = null;
+
     private MaterialEditor editor;
 
     private Material material;
@@ -58,6 +63,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private bool toonExpanded = true;
     private bool outlinesExpanded = false;
     private bool metallicExpanded = false;
+    private bool vertexOffsetExpanded = false;
     private bool fallbackExpanded = false;
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
@@ -76,6 +82,10 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             DrawOutlines();
         }
         DrawMetallic();
+        if(HasVertexOffset())
+        {
+            DrawVertexOffset();
+        }
         DrawFallback();
     }
 
@@ -239,6 +249,19 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         editor.RangeProperty(smoothness, "Smoothness");
     }
 
+    private void DrawVertexOffset()
+    {
+        vertexOffsetExpanded = Section("Vertex Offset", vertexOffsetExpanded);
+        if (!vertexOffsetExpanded)
+        {
+            return;
+        }
+
+        editor.VectorProperty(vertexOffset, "Position Offset");
+        editor.VectorProperty(vertexRotation, "Rotation Offset");
+        editor.VectorProperty(vertexScale, "Scale");
+    }
+
     private void DrawFallback()
     {
         fallbackExpanded = Section("Fallback", fallbackExpanded);
@@ -337,6 +360,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         outlineScreenspace = FindProperty("_ScreenSpaceOutline", props, false);
         outlineStencilComp = FindProperty("_OutlineStencilComp", props, false);
         outlineCutout = FindProperty("_OutlineCutout", props, false);
+
+        //Vertex offset stuff
+        vertexOffset = FindProperty("_VertexOffset", props, false);
+        vertexRotation = FindProperty("_VertexRotation", props, false);
+        vertexScale = FindProperty("_VertexScale", props, false);
     }
 
     private bool HasRampMasking()
@@ -352,6 +380,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private bool HasTransparency()
     {
         return opacity != null;
+    }
+
+    private bool HasVertexOffset()
+    {
+        return vertexOffset != null;
     }
 
     private bool TextureIsNotSetToClamp(MaterialProperty prop)

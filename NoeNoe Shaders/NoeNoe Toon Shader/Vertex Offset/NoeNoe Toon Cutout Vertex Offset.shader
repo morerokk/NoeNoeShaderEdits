@@ -39,6 +39,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
 		_ToonContrastB ("Toon Contrast (B)", Range(0, 1)) = 0.25
         _IntensityB ("Intensity (B)", Range(0, 10)) = 0.8
         _SaturationB ("Saturation (B)", Range(0, 1)) = 0.65
+		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 2
 		_Ramp ("Fallback Ramp", 2D) = "white" {}
     }
     SubShader {
@@ -51,7 +52,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
             Tags {
                 "LightMode"="ForwardBase"
             }
-            Cull Off
+            Cull [_Cull]
 			
 			Stencil {
 				Ref 8
@@ -224,7 +225,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
                 "LightMode"="ForwardAdd"
             }
             Blend One One
-            Cull Off
+            Cull [_Cull]
             
             
             CGPROGRAM
@@ -364,4 +365,5 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
         }
     }
     FallBack "Diffuse"
+	CustomEditor "NoeNoeToonEditorGUI"
 }
