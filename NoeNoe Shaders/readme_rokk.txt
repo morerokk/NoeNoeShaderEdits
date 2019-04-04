@@ -1,11 +1,12 @@
 This pack features a bunch of edits of Noenoe shaders. All edits have been done to the "Toon" subsection. The Overlay shaders (including PBR) are unchanged.
 
+- All shaders can now use the world's directional light direction. The Static Toon Light direction will be used as a "fallback" if there is no meaningful light direction. You can still force your own light direction if you wish.
+- Completely overhauled editor GUI
 - Every shader now has Metallic support
 - Every shader now has an alpha cutoff slider, even Transparent
 - Every shader now has a sidedness selection (front sided, back sided, double-sided)
 - Renamed Opaque to Cutout to be more compatible with the shader fallback system
 - Added "Vertex Offset" shader under Overlay/Misc. This shader features properties like Position, Rotation and Scale within the shader. Can be animated. Great for niche uses that would otherwise break the IK, such as up/down floating animations, upside-down models, or scaling.
-- All shaders can now use the world's directional light direction. The Static Toon Light direction will be used as a "fallback" if there are no Realtime/Mixed directional lights. You can still force your own light direction if you wish.
 
 Large improvements to the outline shader:
 - Added an "outer only" outline mode. In this mode, outlines will not be rendered over the model, only on the outer edges. Good for avoiding artifacts and for stylistic effect.

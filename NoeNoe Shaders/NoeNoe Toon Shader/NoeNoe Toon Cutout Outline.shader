@@ -13,7 +13,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
         _Intensity ("Intensity", Range(0, 10)) = 0.8
         _Saturation ("Saturation", Range(0, 1)) = 0.65
         _NormalMap ("Normal Map", 2D) = "bump" {}
-		[NoScaleOffset]_MetallicGlossMap("Metallic Map", 2D) = "white" {}
+		[NoScaleOffset] _MetallicGlossMap("Metallic Map", 2D) = "white" {}
 		_Metallic("Metallic", Range( 0 , 1)) = 0
 		_Glossiness("Smoothness", Range( 0 , 1)) = 0
         _OutlineWidth ("Outline Width", Float ) = 0
@@ -272,4 +272,5 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
         }
     }
     FallBack "Diffuse"
+	CustomEditor "NoeNoeToonEditorGUI"
 }

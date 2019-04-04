@@ -153,4 +153,5 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
         }
     }
     FallBack "Diffuse"
+	CustomEditor "NoeNoeToonEditorGUI"
 }

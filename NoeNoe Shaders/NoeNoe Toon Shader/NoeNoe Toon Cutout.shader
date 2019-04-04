@@ -169,4 +169,5 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout" {
         }
     }
     FallBack "Diffuse"
+	CustomEditor "NoeNoeToonEditorGUI"
 }

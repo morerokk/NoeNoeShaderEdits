@@ -187,4 +187,5 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
         }
     }
     FallBack "Diffuse"
+	CustomEditor "NoeNoeToonEditorGUI"
 }
