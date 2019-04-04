@@ -67,8 +67,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         material = materialEditor.target as Material;
 
-        //base.OnGUI(materialEditor, properties);
-
         ObliterateKeywords();
 
         DrawMain();
@@ -110,10 +108,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         editor.RangeProperty(alphaCutoff, "Alpha Cutoff");
 
-        if (!HasOutlines())
-        {
-            editor.ShaderProperty(sidedness, "Sidedness");
-        }
+        editor.ShaderProperty(sidedness, "Sidedness");
 
         if(HasTransparency())
         {
@@ -220,6 +215,15 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         editor.ShaderProperty(outlineScreenspace, new GUIContent("Screenspace outlines", "Whether the outlines should be screenspace (always equally large, no matter the distance)"));
         editor.ShaderProperty(outlineStencilComp, new GUIContent("Outline Mode", "Outer Only will only render the outlines on the outer edges of the model."));
         editor.ShaderProperty(outlineCutout, new GUIContent("Cutout Outlines", "Whether the outlines should be subject to cutout."));
+
+        //Display a warning if the user attempts to use outlines to create double-sidedness.
+        if(
+            outlineWidth.floatValue == 0
+            && outlineTex.textureValue != null && mainTex.textureValue != null
+            && outlineTex.textureValue.GetInstanceID() == mainTex.textureValue.GetInstanceID())
+        {
+            EditorGUILayout.HelpBox("Outlines should not be used to make your model double-sided. Use the \"Sidedness\" property under Main instead.", MessageType.Warning);
+        }
     }
 
     private void DrawMetallic()

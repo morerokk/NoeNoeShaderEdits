@@ -23,6 +23,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
 		[Enum(Normal,8,Outer Only,6)] _OutlineStencilComp ("Outline Mode", Float) = 8
 		[Toggle(_)] _OutlineCutout ("Cutout Outlines", Float) = 1
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
+		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 2
 		_Ramp ("Fallback Ramp", 2D) = "white" {}
     }
     SubShader {
@@ -35,7 +36,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
             Tags {
                 "LightMode"="ForwardBase"
             }
-            Cull Off
+            Cull [_Cull]
 			
 			Stencil {
 				Ref 8
@@ -189,7 +190,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
                 "LightMode"="ForwardAdd"
             }
             Blend One One
-            Cull Off
+            Cull [_Cull]
             
             
             CGPROGRAM
