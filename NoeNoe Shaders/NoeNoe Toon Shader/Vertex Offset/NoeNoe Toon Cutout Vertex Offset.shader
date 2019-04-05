@@ -74,6 +74,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
             #pragma multi_compile_fwdbase_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
+			#pragma shader_feature _METALLICGLOSSMAP
 			
 			#define NOENOETOON_RAMP_MASKING
 			
@@ -242,6 +243,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
             #pragma multi_compile_fwdadd_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
+			#pragma shader_feature _METALLICGLOSSMAP
 			
 			#define NOENOETOON_RAMP_MASKING
 			

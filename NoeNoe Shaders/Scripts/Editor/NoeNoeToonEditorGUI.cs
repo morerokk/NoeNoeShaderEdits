@@ -73,8 +73,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         material = materialEditor.target as Material;
 
-        ObliterateKeywords();
-
         DrawMain();
         DrawToonLighting();
         if(HasOutlines())
@@ -87,6 +85,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             DrawVertexOffset();
         }
         DrawFallback();
+
+        SetupKeywords();
     }
 
     private void DrawMain()
@@ -285,11 +285,13 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     /// <returns>A boolean indicating whether the section is currently open or not.</returns>
     private bool Section(string title, bool expanded)
     {
-        var style = new GUIStyle("ShurikenModuleTitle");
-        style.font = new GUIStyle(EditorStyles.label).font;
-        style.border = new RectOffset(15, 7, 4, 4);
-        style.fixedHeight = 22;
-        style.contentOffset = new Vector2(20f, -2f);
+        var style = new GUIStyle("ShurikenModuleTitle")
+        {
+            font = new GUIStyle(EditorStyles.label).font,
+            border = new RectOffset(15, 7, 4, 4),
+            fixedHeight = 22,
+            contentOffset = new Vector2(20f, -2f)
+        };
 
         var rect = GUILayoutUtility.GetRect(16f, 22f, style);
         GUI.Box(rect, title, style);
@@ -392,8 +394,15 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         return prop.textureValue != null && prop.textureValue.wrapMode != TextureWrapMode.Clamp;
     }
 
-    private void ObliterateKeywords()
+    private void SetupKeywords()
     {
+        // Delete all keywords first
         material.shaderKeywords = new string[] { };
+
+        // Add Metallic *if* used.
+        if (metallic.floatValue > 0)
+        {
+            material.EnableKeyword("_METALLICGLOSSMAP");
+        }
     }
 }
