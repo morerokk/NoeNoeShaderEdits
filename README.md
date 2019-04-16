@@ -15,6 +15,8 @@ Quick list of changes:
 * Added "Vertex Offset" shader under Overlay/Misc. This shader features properties like Position, Rotation and Scale within the shader. These properties can be animated. Great for niche uses that would otherwise break the IK, such as up/down floating animations, upside-down models, or scaling.
 * Optional support for receiving shadows (including self-shadowing).
 
+The self-shadowing is not always desirable, which is why the option is off by default. If desired, you can also turn off Cast Shadows on the mesh renderer instead, allowing you to still receive shadows properly.
+
 A bunch of changes to the outline shader:
 
 * Added "outer-only" outlines mode, which will only render outlines on the outer edges of the model. Great for avoiding artifacts or for stylistic effect.
