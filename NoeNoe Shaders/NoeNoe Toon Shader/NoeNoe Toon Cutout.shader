@@ -16,9 +16,12 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout" {
         _NormalMap ("Normal Map", 2D) = "bump" {}
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
 		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 0
-		[NoScaleOffset]_MetallicGlossMap("Metallic Map", 2D) = "white" {}
+		[Enum(None,0,Metallic,1,Specular,2)] _MetallicMode("Metallic Mode", Float) = 0
+		[NoScaleOffset] _MetallicGlossMap("Metallic Map", 2D) = "white" {}
 		_Metallic("Metallic", Range( 0 , 1)) = 0
 		_Glossiness("Smoothness", Range( 0 , 1)) = 0
+        _SpecColor("Specular Color", Color) = (0,0,0,0)
+        _SpecGlossMap("Specular Map", 2D) = "white" {}
 		_Ramp ("Fallback Ramp", 2D) = "white" {} //Ugly workaround for ugly fallback ramps
 		[Toggle(_)] _ReceiveShadows ("Receive Shadows", Float) = 0
     }
@@ -49,6 +52,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout" {
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
 			#pragma shader_feature _METALLICGLOSSMAP
+			#pragma shader_feature _SPECGLOSSMAP
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;

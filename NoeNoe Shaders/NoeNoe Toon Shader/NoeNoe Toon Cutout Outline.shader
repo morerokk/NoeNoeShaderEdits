@@ -14,9 +14,12 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
         _Intensity ("Intensity", Range(0, 10)) = 0.8
         _Saturation ("Saturation", Range(0, 1)) = 0.65
         _NormalMap ("Normal Map", 2D) = "bump" {}
+		[Enum(None,0,Metallic,1,Specular,2)] _MetallicMode("Metallic Mode", Float) = 0
 		[NoScaleOffset] _MetallicGlossMap("Metallic Map", 2D) = "white" {}
 		_Metallic("Metallic", Range( 0 , 1)) = 0
 		_Glossiness("Smoothness", Range( 0 , 1)) = 0
+        _SpecColor("Specular Color", Color) = (0,0,0,0)
+        _SpecGlossMap("Specular Map", 2D) = "white" {}
         _OutlineWidth ("Outline Width", Float ) = 0
         _OutlineColor ("Outline Tint", Color) = (0,0,0,1)
 		_OutlineTex ("Outline Texture", 2D) = "white" {}
@@ -59,6 +62,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
 			#pragma shader_feature _METALLICGLOSSMAP
+			#pragma shader_feature _SPECGLOSSMAP
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
@@ -208,6 +212,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
 			#pragma shader_feature _METALLICGLOSSMAP
+			#pragma shader_feature _SPECGLOSSMAP
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;

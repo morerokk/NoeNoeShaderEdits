@@ -2,7 +2,7 @@ This pack features a bunch of edits of Noenoe shaders. All edits have been done 
 
 - All shaders can now use the world's directional light direction. The Static Toon Light direction will be used as a "fallback" if there is no meaningful light direction. You can still force your own light direction if you wish.
 - Completely overhauled editor GUI
-- Every shader now has Metallic support
+- Every shader now has optional Metallic and Specular support
 - Every shader now has an alpha cutoff slider, even Transparent
 - Every shader now has a sidedness selection (front sided, back sided, double-sided)
 - Renamed Opaque to Cutout to be more compatible with the shader fallback system

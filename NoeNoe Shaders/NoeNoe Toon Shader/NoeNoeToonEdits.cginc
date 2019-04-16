@@ -27,6 +27,10 @@ sampler2D _MetallicGlossMap;
 float _Metallic;
 float _Glossiness;
 
+// Why is this already in use?
+//float4 _SpecColor;
+sampler2D _SpecGlossMap;
+
 float3 GIsonarDirection()
 {
     float3 GIsonar_dir_vec = (unity_SHAr.xyz*unity_SHAr.w + unity_SHAg.xyz*unity_SHAg.w + unity_SHAb.xyz*unity_SHAb.w);
@@ -185,7 +189,9 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	
 	//Reflections
 	
+	//Metallic
 	#if defined(_METALLICGLOSSMAP)
+		//Metallic workflow
 		float4 metallicTex = tex2D(_MetallicGlossMap, TRANSFORM_TEX(i.uv0, mainTexture));
 		float metallic = metallicTex.r * _Metallic;
 		
@@ -220,6 +226,46 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 			}
 			
 			reflectionColor *= Diffuse;
+		#endif
+	#elif defined(_SPECGLOSSMAP)
+		//Specular workflow
+		float4 specularTex = tex2D(_SpecGlossMap, TRANSFORM_TEX(i.uv0, mainTexture));
+		float3 specular = specularTex.rgb * _SpecColor.rgb;
+		
+		//Not actually metallic, but this saves some work.
+		//Defines how much of the diffuse and reflection color is used.
+		float metallic = max(specular.r, max(specular.g, specular.b));
+		
+		#ifdef UNITY_PASS_FORWARDBASE
+			//Unlit reflections in ForwardBase
+			float roughness = 1 - (specularTex.a * _Glossiness);
+			roughness *= 1.7 - 0.7 * roughness;
+			
+			float3 reflectedDir = reflect(-i.viewDir, normalize(i.normalDir));
+			float3 reflectionColor;
+			
+			//Sample second probe if available.
+			float interpolator = unity_SpecCube0_BoxMin.w;
+			UNITY_BRANCH
+			if(interpolator < 0.99999)
+			{
+				//Probe 1
+				float4 reflectionData0 = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflectedDir, roughness * UNITY_SPECCUBE_LOD_STEPS);
+				float3 reflectionColor0 = DecodeHDR(reflectionData0, unity_SpecCube0_HDR);
+
+				//Probe 2
+				float4 reflectionData1 = UNITY_SAMPLE_TEXCUBE_SAMPLER_LOD(unity_SpecCube1, unity_SpecCube0, reflectedDir, roughness * UNITY_SPECCUBE_LOD_STEPS);
+				float3 reflectionColor1 = DecodeHDR(reflectionData1, unity_SpecCube1_HDR);
+
+				reflectionColor = lerp(reflectionColor1, reflectionColor0, interpolator);
+			}
+			else
+			{
+				float4 reflectionData = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflectedDir, roughness * UNITY_SPECCUBE_LOD_STEPS);
+				reflectionColor = DecodeHDR(reflectionData, unity_SpecCube0_HDR);
+			}
+			
+			reflectionColor *= specular;
 		#endif
 	#endif
 	
@@ -272,7 +318,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	float3 StaticToonLighting = node_9498.rgb;
 	float3 finalColor = saturate(((IntensityVar*FlatLighting*Diffuse) > 0.5 ?  (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) );
 	
-	#if defined(_METALLICGLOSSMAP)
+	#if defined(_METALLICGLOSSMAP) || defined(_SPECGLOSSMAP)
 		// Apply unlit reflections
 		#ifdef UNITY_PASS_FORWARDBASE
 			// TODO: If reflecting the skybox rather than a probe, dim the reflection.

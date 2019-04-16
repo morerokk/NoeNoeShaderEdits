@@ -25,9 +25,12 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty fallbackRamp = null;
 
     //Metallic
+    private MaterialProperty metallicMode = null;
     private MaterialProperty metallicMap = null;
     private MaterialProperty metallic = null;
     private MaterialProperty smoothness = null;
+    private MaterialProperty specularColor = null;
+    private MaterialProperty specularMap = null;
 
     //Ramp mask stuff
     private MaterialProperty rampMaskTex = null;
@@ -261,8 +264,36 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             return;
         }
 
+        editor.ShaderProperty(metallicMode, new GUIContent("Metallic Mode", "Set the metallic mode for this material (None, Metallic workflow, Specular workflow)"));
+
+        //Draw either the metallic or specular controls
+        if(metallicMode.floatValue == 1)
+        {
+            DrawMetallicWorkflow();
+        }
+        else if(metallicMode.floatValue == 2)
+        {
+            DrawSpecularWorkflow();
+        }
+        else
+        {
+            //Draw greyed out metallic
+            EditorGUI.BeginDisabledGroup(true);
+            DrawMetallicWorkflow();
+            EditorGUI.EndDisabledGroup();
+        }
+    }
+
+    private void DrawMetallicWorkflow()
+    {
         editor.TexturePropertySingleLine(new GUIContent("Metallic Map", "Defines Metallic (R) and Smoothness (A). Lower smoothness blurs reflections."), metallicMap);
         editor.RangeProperty(metallic, "Metallic");
+        editor.RangeProperty(smoothness, "Smoothness");
+    }
+
+    private void DrawSpecularWorkflow()
+    {
+        editor.TexturePropertySingleLine(new GUIContent("Specular Map", "Defines Specular color (RGB) and Smoothness (A). Lower smoothness blurs reflections."), specularMap, specularColor);
         editor.RangeProperty(smoothness, "Smoothness");
     }
 
@@ -346,9 +377,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         emissionColor = FindProperty("_EmissionColor", props);
         normalMap = FindProperty("_NormalMap", props);
         alphaCutoff = FindProperty("_Cutoff", props);
-        metallicMap = FindProperty("_MetallicGlossMap", props);
-        metallic = FindProperty("_Metallic", props);
-        smoothness = FindProperty("_Glossiness", props);
         fallbackRamp = FindProperty("_Ramp", props);
 
         sidedness = FindProperty("_Cull", props, false);
@@ -363,6 +391,14 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         toonContrast = FindProperty("_ToonContrast", props);
         intensity = FindProperty("_Intensity", props);
         saturation = FindProperty("_Saturation", props);
+
+        //Metallic
+        metallicMode = FindProperty("_MetallicMode", props);
+        metallicMap = FindProperty("_MetallicGlossMap", props);
+        metallic = FindProperty("_Metallic", props);
+        smoothness = FindProperty("_Glossiness", props);
+        specularColor = FindProperty("_SpecColor", props);
+        specularMap = FindProperty("_SpecGlossMap", props);
 
         //Ramp mask stuff
         rampMaskTex = FindProperty("_RampMaskTex", props, false);
@@ -433,10 +469,14 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         // Delete all keywords first
         material.shaderKeywords = new string[] { };
 
-        // Add Metallic *if* used.
-        if (metallic.floatValue > 0)
+        // Add Metallic or Specular keyword *if* used.
+        if (metallicMode.floatValue == 1)
         {
             material.EnableKeyword("_METALLICGLOSSMAP");
+        }
+        else if(metallicMode.floatValue == 2)
+        {
+            material.EnableKeyword("_SPECGLOSSMAP");
         }
     }
 }

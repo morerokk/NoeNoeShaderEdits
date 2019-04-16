@@ -8,7 +8,7 @@ Quick list of changes:
 
 * All shaders can now use the world's light direction. The Static Toon Light direction will be used as a "fallback" if the world has no meaningful light direction. You can still force your own light direction if you wish. World light direction also works in baked-only worlds.
 * Completely overhauled editor GUI
-* Every shader now has optional Metallic support
+* Every shader now has optional Metallic and Specular support
 * Every shader now has an alpha cutoff slider, even Transparent
 * Every shader now has a sidedness selection (front sided, back sided, double-sided). Transparent is still one-sided by default, because it can sometimes give artifacts when opacity is decreased.
 * Renamed Opaque to Cutout to be more compatible with the shader fallback system
