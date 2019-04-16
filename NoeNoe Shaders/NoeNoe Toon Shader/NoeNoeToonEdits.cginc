@@ -1,12 +1,18 @@
 float _WorldLightIntensity;
+float _RampTint;
+float _ReceiveShadows;
+float3 _EmissionColor;
 
 #ifdef NOENOETOON_RAMP_MASKING
 	uniform sampler2D _RampMaskTex;
 	uniform sampler2D _RampR;
+    uniform float _RampTintR;
 	uniform float _ToonContrastR;	
 	uniform sampler2D _RampG;
+    uniform float _RampTintG;
 	uniform float _ToonContrastG;
 	uniform sampler2D _RampB;
+    uniform float _RampTintB;
 	uniform float _ToonContrastB;
 	
 	uniform float _IntensityR;
@@ -79,8 +85,7 @@ struct VertexOutput {
 	float3 tangentDir : TEXCOORD3;
 	float3 bitangentDir : TEXCOORD4;
 	LIGHTING_COORDS(5,6)
-	float4 lightDir : TEXCOORD7; // AutoLight took 5 and 6 already
-	float3 viewDir : TEXCOORD8;
+	float3 viewDir : TEXCOORD7;
 };
 
 VertexOutput vert (VertexInput v) {
@@ -93,7 +98,6 @@ VertexOutput vert (VertexInput v) {
 	float3 lightColor = _LightColor0.rgb;
 	
 	o.pos = UnityObjectToClipPos(v.vertex);
-	o.lightDir = lightDirection(_StaticToonLight, _OverrideWorldLight);
 	o.viewDir = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld, v.vertex).xyz);
 	TRANSFER_VERTEX_TO_FRAGMENT(o)
 	return o;
@@ -103,7 +107,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	float isFrontFace = ( facing >= 0 ? 1 : 0 );
 	float faceSign = ( facing >= 0 ? 1 : -1 );
 
-	float4 staticLightDir = i.lightDir;
+	float4 staticLightDir = lightDirection(_StaticToonLight, _OverrideWorldLight);
 	
 	i.normalDir = normalize(i.normalDir);
 	i.normalDir *= faceSign;
@@ -137,11 +141,17 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	
 	float3 lightColor = _LightColor0.rgb;
 ////// Lighting:
-	float attenuation = LIGHT_ATTENUATION(i) / SHADOW_ATTENUATION(i);
+
+	UNITY_LIGHT_ATTENUATION(attenuation, i, i.posWorld.xyz);
+	if(_ReceiveShadows == 0)
+	{
+		// Disable shadow receiving entirely
+		attenuation = LIGHT_ATTENUATION(i) / SHADOW_ATTENUATION(i);
+	}
 	
 	#ifdef UNITY_PASS_FORWARDBASE
 		float4 _EmissionMap_var = tex2D(_EmissionMap,TRANSFORM_TEX(i.uv0, _EmissionMap));
-		float3 MappedEmissive = (_EmissionMap_var.rgb*_Emission);
+		float3 MappedEmissive = (_EmissionMap_var.rgb*_EmissionColor);
 		float3 emissive = MappedEmissive;
 	#endif
 	
@@ -231,23 +241,33 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		//Ramping
 		float4 node_9498;
 		float ToonContrast_var;
+		float Tint_var;
 		if(maskColor.r > 0.5) {
 			node_9498 = tex2D(_RampR,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastR;
+			Tint_var = _RampTintR;
 		} else if(maskColor.g > 0.5) {
 			node_9498 = tex2D(_RampG,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastG;
+			Tint_var = _RampTintG;
 		} else if(maskColor.b > 0.5) {
 			node_9498 = tex2D(_RampB,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastB;
+			Tint_var = _RampTintB;
 		} else {				
 			node_9498 = tex2D(_RealRamp,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrast;
+			Tint_var = _RampTint;
 		}
 	#else
 		float4 node_9498 = tex2D(_RealRamp,TRANSFORM_TEX(node_8091, _RealRamp));
 		float ToonContrast_var = _ToonContrast;
+		float Tint_var = _RampTint;
 	#endif
+	
+	//Tint ramp color to diffuse color
+    float4 tintedToonTex = node_9498 * float4(Diffuse, 1);
+	node_9498 = lerp(node_9498, tintedToonTex, Tint_var);
 	
 	float3 StaticToonLighting = node_9498.rgb;
 	float3 finalColor = saturate(((IntensityVar*FlatLighting*Diffuse) > 0.5 ?  (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) );
@@ -258,15 +278,17 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 			// TODO: If reflecting the skybox rather than a probe, dim the reflection.
 			// Is that even possible? If so, tell me how ;)
 			finalColor = lerp(finalColor, reflectionColor, metallic);
-			
-			// Apply emission
-			finalColor = emissive + finalColor;
 		#endif
 		
 		// To avoid drowning out metallic in bright light, decrease forwardadd output as things get more metallic.
 		#ifdef UNITY_PASS_FORWARDADD
 			finalColor *= (1 - metallic);
 		#endif
+	#endif
+	
+	#ifdef UNITY_PASS_FORWARDBASE
+		// Apply emission
+		finalColor = emissive + finalColor;
 	#endif
 	
 	float finalAlpha = 1;

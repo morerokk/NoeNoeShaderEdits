@@ -53,7 +53,6 @@ VertexOutput vertOffset (VertexInput v) {
 	float3 lightColor = _LightColor0.rgb;
 	
 	o.pos = UnityObjectToClipPos(v.vertex);
-	o.lightDir = lightDirection(_StaticToonLight, _OverrideWorldLight);
 	TRANSFER_VERTEX_TO_FRAGMENT(o)
 	return o;
 }

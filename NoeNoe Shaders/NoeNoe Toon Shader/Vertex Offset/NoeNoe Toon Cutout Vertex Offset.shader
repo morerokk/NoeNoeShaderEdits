@@ -7,9 +7,10 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
 		[Toggle(_)] _OverrideWorldLight ("Override World Light", Float) = 0
         [Toggle(_)] _BillboardStaticLight ("Billboard Static Light", Float ) = 0
         _RealRamp ("Ramp", 2D) = "white" {}
+		_RampTint ("Ramp Tint", Range(0,1)) = 0
         _ToonContrast ("Toon Contrast", Range(0, 1)) = 0.25
         _EmissionMap ("Emission Map", 2D) = "white" {}
-        _Emission ("Emission", Range(0, 10)) = 0
+        [HDR] _EmissionColor ("Emission", Color) = (0,0,0,1)
         _Intensity ("Intensity", Range(0, 10)) = 0.8
         _Saturation ("Saturation", Range(0, 1)) = 0.65
         _NormalMap ("Normal Map", 2D) = "bump" {}
@@ -28,19 +29,23 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
 		_VertexScale ("Scale", Vector) = (1,1,1,1)
 		[NoScaleOffset] _RampMaskTex ("Ramp Mask", 2D) = "black"
 		[NoScaleOffset] _RampR ("Ramp (R)", 2D) = "white" {}
+		_RampTintR ("Ramp Tint (R)", Range(0,1)) = 0
 		_ToonContrastR ("Toon Contrast (R)", Range(0, 1)) = 0.25
         _IntensityR ("Intensity (R)", Range(0, 10)) = 0.8
         _SaturationR ("Saturation (R)", Range(0, 1)) = 0.65
 		[NoScaleOffset] _RampG ("Ramp (G)", 2D) = "white" {}
+		_RampTintG ("Ramp Tint (G)", Range(0,1)) = 0
 		_ToonContrastG ("Toon Contrast (G)", Range(0, 1)) = 0.25
         _IntensityG ("Intensity (G)", Range(0, 10)) = 0.8
         _SaturationG ("Saturation (G)", Range(0, 1)) = 0.65
 		[NoScaleOffset] _RampB ("Ramp (B)", 2D) = "white" {}
+		_RampTintB ("Ramp Tint (B)", Range(0,1)) = 0
 		_ToonContrastB ("Toon Contrast (B)", Range(0, 1)) = 0.25
         _IntensityB ("Intensity (B)", Range(0, 10)) = 0.8
         _SaturationB ("Saturation (B)", Range(0, 1)) = 0.65
 		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 2
 		_Ramp ("Fallback Ramp", 2D) = "white" {}
+		[Toggle(_)] _ReceiveShadows ("Receive Shadows", Float) = 0
     }
     SubShader {
         Tags {
@@ -81,7 +86,6 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
-            uniform float _Emission;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
 			
@@ -212,7 +216,6 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
                 float OutlineScale = lerp( outlineWidth, (distance(_WorldSpaceCameraPos,mul(unity_ObjectToWorld, v.vertex).rgb)*outlineWidth), _ScreenSpaceOutline);
                 o.pos = UnityObjectToClipPos(float4(v.vertex.xyz + v.normal*OutlineScale,1));
 				o.posWorld = mul(unity_ObjectToWorld, float4(v.vertex.xyz + v.normal*OutlineScale,1));
-				o.lightDir = lightDirection(_StaticToonLight, _OverrideWorldLight);
 				TRANSFER_VERTEX_TO_FRAGMENT(o)
 				return o;
 			}
@@ -250,7 +253,6 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
-            uniform float _Emission;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
 			

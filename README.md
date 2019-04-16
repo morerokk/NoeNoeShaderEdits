@@ -13,6 +13,7 @@ Quick list of changes:
 * Every shader now has a sidedness selection (front sided, back sided, double-sided). Transparent is still one-sided by default, because it can sometimes give artifacts when opacity is decreased.
 * Renamed Opaque to Cutout to be more compatible with the shader fallback system
 * Added "Vertex Offset" shader under Overlay/Misc. This shader features properties like Position, Rotation and Scale within the shader. These properties can be animated. Great for niche uses that would otherwise break the IK, such as up/down floating animations, upside-down models, or scaling.
+* Optional support for receiving shadows (including self-shadowing).
 
 A bunch of changes to the outline shader:
 

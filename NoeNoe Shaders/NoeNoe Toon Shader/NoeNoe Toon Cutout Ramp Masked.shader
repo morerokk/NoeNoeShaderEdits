@@ -7,9 +7,10 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 		[Toggle(_)] _OverrideWorldLight ("Override World Light", Float) = 0
         [Toggle(_)] _BillboardStaticLight ("Billboard Static Light", Float ) = 0
         _RealRamp ("Default Ramp", 2D) = "white" {}
+		_RampTint ("Ramp Tint", Range(0,1)) = 0
         _ToonContrast ("Default Toon Contrast", Range(0, 1)) = 0.25
         _EmissionMap ("Emission Map", 2D) = "white" {}
-        _Emission ("Emission", Range(0, 10)) = 0
+        _EmissionColor ("Emission", Color) = (0,0,0)
         _Intensity ("Default Intensity", Range(0, 10)) = 0.8
         _Saturation ("Default Saturation", Range(0, 1)) = 0.65
         _NormalMap ("Normal Map", 2D) = "bump" {}
@@ -20,28 +21,30 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 		_Glossiness("Smoothness", Range( 0 , 1)) = 0
 		[NoScaleOffset] _RampMaskTex ("Ramp Mask", 2D) = "black"
 		[NoScaleOffset] _RampR ("Ramp (R)", 2D) = "white" {}
+		_RampTintR ("Ramp Tint (R)", Range(0,1)) = 0
 		_ToonContrastR ("Toon Contrast (R)", Range(0, 1)) = 0.25
         _IntensityR ("Intensity (R)", Range(0, 10)) = 0.8
         _SaturationR ("Saturation (R)", Range(0, 1)) = 0.65
 		[NoScaleOffset] _RampG ("Ramp (G)", 2D) = "white" {}
+		_RampTintG ("Ramp Tint (G)", Range(0,1)) = 0
 		_ToonContrastG ("Toon Contrast (G)", Range(0, 1)) = 0.25
         _IntensityG ("Intensity (G)", Range(0, 10)) = 0.8
         _SaturationG ("Saturation (G)", Range(0, 1)) = 0.65
 		[NoScaleOffset] _RampB ("Ramp (B)", 2D) = "white" {}
+		_RampTintB ("Ramp Tint (B)", Range(0,1)) = 0
 		_ToonContrastB ("Toon Contrast (B)", Range(0, 1)) = 0.25
         _IntensityB ("Intensity (B)", Range(0, 10)) = 0.8
         _SaturationB ("Saturation (B)", Range(0, 1)) = 0.65
 		_Ramp ("Fallback Ramp", 2D) = "white" {}
+		[Toggle(_)] _ReceiveShadows ("Receive Shadows", Float) = 0
     }
     SubShader {
         Tags {
-            "RenderType"="TransparentCutout"
+            "RenderType"="TransparentCutout" "Queue"="AlphaTest"
         }
         Pass {
             Name "FORWARD"
-            Tags {
-                "LightMode"="ForwardBase"
-            }
+            Tags { "LightMode"="ForwardBase" }
             
 			Cull [_Cull]            
             
@@ -64,7 +67,6 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
-            uniform float _Emission;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
 			
@@ -125,7 +127,6 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
-            uniform float _Emission;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
 			
@@ -190,6 +191,5 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             ENDCG
         }
     }
-    FallBack "Diffuse"
 	CustomEditor "NoeNoeToonEditorGUI"
 }

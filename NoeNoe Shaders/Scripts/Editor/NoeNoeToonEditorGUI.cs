@@ -3,37 +3,46 @@ using UnityEngine;
 
 public class NoeNoeToonEditorGUI : ShaderGUI
 {
+    //Main
     private MaterialProperty color = null;
     private MaterialProperty mainTex = null;
+    private MaterialProperty emissionMap = null;
+    private MaterialProperty emissionColor = null;
+    private MaterialProperty normalMap = null;
+    private MaterialProperty alphaCutoff = null;
+    private MaterialProperty sidedness = null;
+
+    //Toon lighting
     private MaterialProperty staticToonLight = null;
     private MaterialProperty worldLightIntensity = null;
     private MaterialProperty overrideWorldLight = null;
     private MaterialProperty billboardStaticLight = null;
     private MaterialProperty ramp = null;
+    private MaterialProperty rampTint = null;
     private MaterialProperty toonContrast = null;
-    private MaterialProperty emissionMap = null;
-    private MaterialProperty emission = null;
     private MaterialProperty intensity = null;
     private MaterialProperty saturation = null;
-    private MaterialProperty normalMap = null;
-    private MaterialProperty alphaCutoff = null;
-    private MaterialProperty sidedness = null;
+    private MaterialProperty fallbackRamp = null;
+
+    //Metallic
     private MaterialProperty metallicMap = null;
     private MaterialProperty metallic = null;
     private MaterialProperty smoothness = null;
-    private MaterialProperty fallbackRamp = null;
 
     //Ramp mask stuff
     private MaterialProperty rampMaskTex = null;
     private MaterialProperty rampR = null;
+    private MaterialProperty rampTintR = null;
     private MaterialProperty toonContrastR = null;
     private MaterialProperty intensityR = null;
     private MaterialProperty saturationR = null;
     private MaterialProperty rampG = null;
+    private MaterialProperty rampTintG = null;
     private MaterialProperty toonContrastG = null;
     private MaterialProperty intensityG = null;
     private MaterialProperty saturationG = null;
     private MaterialProperty rampB = null;
+    private MaterialProperty rampTintB = null;
     private MaterialProperty toonContrastB = null;
     private MaterialProperty intensityB = null;
     private MaterialProperty saturationB = null;
@@ -55,6 +64,9 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty vertexRotation = null;
     private MaterialProperty vertexScale = null;
 
+    //Shadows
+    private MaterialProperty receiveShadows = null;
+
     private MaterialEditor editor;
 
     private Material material;
@@ -64,7 +76,10 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private bool outlinesExpanded = false;
     private bool metallicExpanded = false;
     private bool vertexOffsetExpanded = false;
-    private bool fallbackExpanded = false;
+    private bool miscExpanded = false;
+
+    private const float kMaxfp16 = 65536f; // Clamp to a value that fits into fp16.
+    ColorPickerHDRConfig HdrPickerConfig = new ColorPickerHDRConfig(0f, kMaxfp16, 1 / kMaxfp16, 3f);
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
@@ -84,7 +99,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         {
             DrawVertexOffset();
         }
-        DrawFallback();
+        DrawMisc();
 
         SetupKeywords();
     }
@@ -109,10 +124,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         EditorGUILayout.Space();
 
-        editor.TexturePropertySingleLine(new GUIContent("Emission Map", "The emission map (RGB)."), emissionMap);
+        editor.TexturePropertyWithHDRColor(new GUIContent("Emission", "The emission map (RGB) and HDR color tint."), emissionMap, emissionColor, HdrPickerConfig, false);
         editor.TextureScaleOffsetProperty(emissionMap);
-        EditorGUILayout.Space();
-        editor.RangeProperty(emission, "Emission");
 
         EditorGUILayout.Space();
 
@@ -154,6 +167,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
         }
         editor.RangeProperty(toonContrast, "Toon Contrast");
+        editor.RangeProperty(rampTint, "Ramp Tint");
 
         editor.RangeProperty(intensity, "Intensity");
         editor.RangeProperty(saturation, "Saturation");
@@ -179,6 +193,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
         }
         editor.RangeProperty(toonContrastR, "Toon Contrast (R)");
+        editor.RangeProperty(rampTintR, "Ramp Tint (R)");
 
         editor.RangeProperty(intensityR, "Intensity (R)");
         editor.RangeProperty(saturationR, "Saturation (R)");
@@ -193,6 +208,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
         }
         editor.RangeProperty(toonContrastG, "Toon Contrast (G)");
+        editor.RangeProperty(rampTintG, "Ramp Tint (G)");
 
         editor.RangeProperty(intensityG, "Intensity (G)");
         editor.RangeProperty(saturationG, "Saturation (G)");
@@ -207,6 +223,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
         }
         editor.RangeProperty(toonContrastB, "Toon Contrast (B)");
+        editor.RangeProperty(rampTintB, "Ramp Tint (B)");
 
         editor.RangeProperty(intensityB, "Intensity (B)");
         editor.RangeProperty(saturationB, "Saturation (B)");
@@ -262,14 +279,15 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         editor.VectorProperty(vertexScale, "Scale");
     }
 
-    private void DrawFallback()
+    private void DrawMisc()
     {
-        fallbackExpanded = Section("Fallback", fallbackExpanded);
-        if (!fallbackExpanded)
+        miscExpanded = Section("Misc", miscExpanded);
+        if (!miscExpanded)
         {
             return;
         }
 
+        GUILayout.Label("Fallback Ramp", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("This fallback toon ramp is used in case your shaders are blocked. The softer toon ramp looks bad on VRChat's internal toon shader, so you can set a different fallback ramp here.", MessageType.Info);
         editor.TexturePropertySingleLine(new GUIContent("Fallback Ramp", "Fallback toon ramp. Leave on default if you don't know what you're doing."), fallbackRamp);
 
@@ -277,6 +295,12 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         {
             EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
         }
+
+        EditorGUILayout.Space();
+
+        GUILayout.Label("Shadows", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("Enabling receive shadows may cause self-shadowing. This can look good, but if you don't want it, either disable Receive Shadows here, or disable Receive Shadows/Cast Shadows on your mesh renderer.", MessageType.Info);
+        editor.ShaderProperty(receiveShadows, "Receive Shadows");
     }
 
     /// <summary>
@@ -315,18 +339,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
     private void FindProperties(MaterialProperty[] props)
     {
+        //Main stuff
         color = FindProperty("_Color", props);
         mainTex = FindProperty("_MainTex", props);
-        staticToonLight = FindProperty("_StaticToonLight", props);
-        worldLightIntensity = FindProperty("_WorldLightIntensity", props);
-        overrideWorldLight = FindProperty("_OverrideWorldLight", props);
-        billboardStaticLight = FindProperty("_BillboardStaticLight", props);
-        ramp = FindProperty("_RealRamp", props);
-        toonContrast = FindProperty("_ToonContrast", props);
         emissionMap = FindProperty("_EmissionMap", props);
-        emission = FindProperty("_Emission", props);
-        intensity = FindProperty("_Intensity", props);
-        saturation = FindProperty("_Saturation", props);
+        emissionColor = FindProperty("_EmissionColor", props);
         normalMap = FindProperty("_NormalMap", props);
         alphaCutoff = FindProperty("_Cutoff", props);
         metallicMap = FindProperty("_MetallicGlossMap", props);
@@ -336,17 +353,31 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         sidedness = FindProperty("_Cull", props, false);
 
+        //Toon lighting
+        staticToonLight = FindProperty("_StaticToonLight", props);
+        worldLightIntensity = FindProperty("_WorldLightIntensity", props);
+        overrideWorldLight = FindProperty("_OverrideWorldLight", props);
+        billboardStaticLight = FindProperty("_BillboardStaticLight", props);
+        ramp = FindProperty("_RealRamp", props);
+        rampTint = FindProperty("_RampTint", props);
+        toonContrast = FindProperty("_ToonContrast", props);
+        intensity = FindProperty("_Intensity", props);
+        saturation = FindProperty("_Saturation", props);
+
         //Ramp mask stuff
         rampMaskTex = FindProperty("_RampMaskTex", props, false);
         rampR = FindProperty("_RampR", props, false);
+        rampTintR = FindProperty("_RampTintR", props, false);
         toonContrastR = FindProperty("_ToonContrastR", props, false);
         intensityR = FindProperty("_IntensityR", props, false);
         saturationR = FindProperty("_SaturationR", props, false);
         rampG = FindProperty("_RampG", props, false);
+        rampTintG = FindProperty("_RampTintG", props, false);
         toonContrastG = FindProperty("_ToonContrastG", props, false);
         intensityG = FindProperty("_IntensityG", props, false);
         saturationG = FindProperty("_SaturationG", props, false);
         rampB = FindProperty("_RampB", props, false);
+        rampTintB = FindProperty("_RampTintB", props, false);
         toonContrastB = FindProperty("_ToonContrastB", props, false);
         intensityB = FindProperty("_IntensityB", props, false);
         saturationB = FindProperty("_SaturationB", props, false);
@@ -367,6 +398,9 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         vertexOffset = FindProperty("_VertexOffset", props, false);
         vertexRotation = FindProperty("_VertexRotation", props, false);
         vertexScale = FindProperty("_VertexScale", props, false);
+
+        //Shadow stuff
+        receiveShadows = FindProperty("_ReceiveShadows", props);
     }
 
     private bool HasRampMasking()
