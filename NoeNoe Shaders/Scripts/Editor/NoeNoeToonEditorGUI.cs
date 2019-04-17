@@ -293,7 +293,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
     private void DrawSpecularWorkflow()
     {
-        editor.TexturePropertySingleLine(new GUIContent("Specular Map", "Defines Specular color (RGB) and Smoothness (A). Lower smoothness blurs reflections."), specularMap, specularColor);
+        editor.TexturePropertyWithHDRColor(new GUIContent("Specular Map", "Defines Specular color (RGB) and Smoothness (A). Lower smoothness blurs reflections."), specularMap, specularColor, HdrPickerConfig, false);
         editor.RangeProperty(smoothness, "Smoothness");
     }
 
