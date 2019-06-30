@@ -1,18 +1,14 @@
 float _WorldLightIntensity;
-float _RampTint;
 float _ReceiveShadows;
 float3 _EmissionColor;
 
 #ifdef NOENOETOON_RAMP_MASKING
 	uniform sampler2D _RampMaskTex;
 	uniform sampler2D _RampR;
-    uniform float _RampTintR;
 	uniform float _ToonContrastR;	
 	uniform sampler2D _RampG;
-    uniform float _RampTintG;
 	uniform float _ToonContrastG;
 	uniform sampler2D _RampB;
-    uniform float _RampTintB;
 	uniform float _ToonContrastB;
 	
 	uniform float _IntensityR;
@@ -118,7 +114,11 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	
 	float3x3 tangentTransform = float3x3( i.tangentDir, i.bitangentDir, i.normalDir);
 	float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
-	float3 _NormalMap_var = UnpackNormal(tex2D(_NormalMap,TRANSFORM_TEX(i.uv0, _NormalMap)));
+	#if defined(_NORMALMAP)
+		float3 _NormalMap_var = UnpackNormal(tex2D(_NormalMap,TRANSFORM_TEX(i.uv0, _NormalMap)));
+	#else
+		float3 _NormalMap_var = UnpackNormal(float4(0.5, 0.5, 1, 1));
+	#endif
 	float3 normalLocal = _NormalMap_var.rgb;
 	float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
 	
@@ -287,33 +287,23 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		//Ramping
 		float4 node_9498;
 		float ToonContrast_var;
-		float Tint_var;
 		if(maskColor.r > 0.5) {
 			node_9498 = tex2D(_RampR,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastR;
-			Tint_var = _RampTintR;
 		} else if(maskColor.g > 0.5) {
 			node_9498 = tex2D(_RampG,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastG;
-			Tint_var = _RampTintG;
 		} else if(maskColor.b > 0.5) {
 			node_9498 = tex2D(_RampB,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrastB;
-			Tint_var = _RampTintB;
 		} else {				
 			node_9498 = tex2D(_RealRamp,TRANSFORM_TEX(node_8091, _RealRamp));
 			ToonContrast_var = _ToonContrast;
-			Tint_var = _RampTint;
 		}
 	#else
 		float4 node_9498 = tex2D(_RealRamp,TRANSFORM_TEX(node_8091, _RealRamp));
 		float ToonContrast_var = _ToonContrast;
-		float Tint_var = _RampTint;
 	#endif
-	
-	//Tint ramp color to diffuse color
-    float4 tintedToonTex = node_9498 * float4(Diffuse, 1);
-	node_9498 = lerp(node_9498, tintedToonTex, Tint_var);
 	
 	float3 StaticToonLighting = node_9498.rgb;
 	float3 finalColor = saturate(((IntensityVar*FlatLighting*Diffuse) > 0.5 ?  (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) );

@@ -36,3 +36,10 @@ A premade skin-colored toon ramp is included ("toon_skin_hq"). You can use toon 
 You should set the texture mode to "Clamp" in Unity on the toon ramp texture, to avoid very ugly artifacts.
 
 Experimental Metallic support has been added. You can use the same metallic maps as in Standard (Red is Metallic, Alpha is Smoothness). Smoothness doesn't do anything by itself, lower smoothness only blurs the reflections on the Metallic. Reflections work the same way as Standard.
+
+Eye tracking:
+Shader now features an experimental eye tracking version. This makes the mesh face the camera. However, the eyes will occasionally look ahead. This behavior is entirely determined by the "pattern texture", a black and white gradient that scrolls from left to right. When the current pixel is black, the eyes will look straight ahead normally. When the pixel is white, the eyes will look towards the camera. In-between values are also supported, allowing for smooth transitions. The scroll speed and blur factor can be changed. For best results, set the wrap mode of the texture to Repeat or Mirror. Two sample textures are included to show off how it works.
+
+For VR, it can also be configured to face either the left eye, right eye or center of the eyes. The character's left eye should look at the right eye and vice-versa, for best effect.
+
+To use this feature, the mesh has to be a non-skinned mesh not affected by an armature. Rather, it should be a non-skinned mesh parented to the character's head, with the origin point of the mesh as the pivot point of the eye. Refer to Vilar's Eye Tracking Shader for setup instructions: https://github.com/Vilar24/VilarVRC

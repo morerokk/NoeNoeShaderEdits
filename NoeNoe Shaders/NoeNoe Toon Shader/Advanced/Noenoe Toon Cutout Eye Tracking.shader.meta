@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 9d88be595fa420642a2ccdc23736e349
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _MainTex: {instanceID: 0}
+  - _RealRamp: {fileID: 2800000, guid: dda255c6e7ca25c4da940fccb27f832d, type: 3}
+  - _EmissionMap: {instanceID: 0}
+  - _NormalMap: {instanceID: 0}
+  - _MetallicGlossMap: {instanceID: 0}
+  - _SpecGlossMap: {instanceID: 0}
+  - _Ramp: {fileID: 2800000, guid: 3281e7d3927047d42bdf0e9d5d4501ed, type: 3}
+  - _EyeTrackingPatternTex: {fileID: 2800000, guid: 4a59490109ced6745bdf2b8d1bc0a7ea,
+      type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

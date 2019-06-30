@@ -1,4 +1,4 @@
-Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
+Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
     Properties {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Main texture (RGB)", 2D) = "white" {}
@@ -7,7 +7,6 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
 		[Toggle(_)] _OverrideWorldLight ("Override World Light", Float) = 0
         [Toggle(_)] _BillboardStaticLight ("Billboard Static Light", Float ) = 0
         _RealRamp ("Ramp", 2D) = "white" {}
-		_RampTint ("Ramp Tint", Range(0,1)) = 0
         _ToonContrast ("Toon Contrast", Range(0, 1)) = 0.25
         _EmissionMap ("Emission Map", 2D) = "white" {}
         [HDR] _EmissionColor ("Emission", Color) = (0,0,0,1)
@@ -84,6 +83,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
             #pragma target 3.0
 			#pragma shader_feature _METALLICGLOSSMAP
 			#pragma shader_feature _SPECGLOSSMAP
+			#pragma shader_feature _NORMALMAP
 			
 			#define NOENOETOON_RAMP_MASKING
 			
@@ -149,6 +149,9 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
             //#pragma multi_compile_fwdbase_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
+			#pragma shader_feature _METALLICGLOSSMAP
+			#pragma shader_feature _SPECGLOSSMAP
+			#pragma shader_feature _NORMALMAP
 			
 			#define NOENOETOON_OUTLINE_PASS
 			
@@ -252,6 +255,7 @@ Shader "NoeNoe/NoeNoe Overlay Shader/Misc/NoeNoe Toon Cutout Vertex Offset" {
             #pragma target 3.0
 			#pragma shader_feature _METALLICGLOSSMAP
 			#pragma shader_feature _SPECGLOSSMAP
+			#pragma shader_feature _NORMALMAP
 			
 			#define NOENOETOON_RAMP_MASKING
 			

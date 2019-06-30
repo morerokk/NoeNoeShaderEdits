@@ -18,7 +18,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty overrideWorldLight = null;
     private MaterialProperty billboardStaticLight = null;
     private MaterialProperty ramp = null;
-    private MaterialProperty rampTint = null;
     private MaterialProperty toonContrast = null;
     private MaterialProperty intensity = null;
     private MaterialProperty saturation = null;
@@ -35,17 +34,14 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     //Ramp mask stuff
     private MaterialProperty rampMaskTex = null;
     private MaterialProperty rampR = null;
-    private MaterialProperty rampTintR = null;
     private MaterialProperty toonContrastR = null;
     private MaterialProperty intensityR = null;
     private MaterialProperty saturationR = null;
     private MaterialProperty rampG = null;
-    private MaterialProperty rampTintG = null;
     private MaterialProperty toonContrastG = null;
     private MaterialProperty intensityG = null;
     private MaterialProperty saturationG = null;
     private MaterialProperty rampB = null;
-    private MaterialProperty rampTintB = null;
     private MaterialProperty toonContrastB = null;
     private MaterialProperty intensityB = null;
     private MaterialProperty saturationB = null;
@@ -67,6 +63,15 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty vertexRotation = null;
     private MaterialProperty vertexScale = null;
 
+    //Eye tracking
+    private MaterialProperty targetEye = null;
+    private MaterialProperty maxLookRange = null;
+    private MaterialProperty randTest = null;
+    private MaterialProperty eyeTrackPatternTexture = null;
+    private MaterialProperty eyeTrackSpeed = null;
+    private MaterialProperty eyeTrackBlur = null;
+    private MaterialProperty eyeTrackBlenderCorrection = null;
+
     //Shadows
     private MaterialProperty receiveShadows = null;
 
@@ -79,6 +84,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private bool outlinesExpanded = false;
     private bool metallicExpanded = false;
     private bool vertexOffsetExpanded = false;
+    private bool eyeTrackingExpanded = false;
     private bool miscExpanded = false;
 
     private const float kMaxfp16 = 65536f; // Clamp to a value that fits into fp16.
@@ -101,6 +107,10 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if(HasVertexOffset())
         {
             DrawVertexOffset();
+        }
+        if(HasEyeTracking())
+        {
+            DrawEyeTracking();
         }
         DrawMisc();
 
@@ -162,16 +172,9 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             EditorGUILayout.HelpBox("Billboard static lighting is only recommended to be used when overriding the world light.", MessageType.Warning);
         }
 
-        editor.TexturePropertySingleLine(new GUIContent("Toon Ramp", "The toon ramp texture to use."), ramp);
+        ToonRampProperty(new GUIContent("Toon Ramp", "The toon ramp texture to use."), ramp);
 
-        //Display warning if repeat mode is not set to clamp.
-        if(TextureIsNotSetToClamp(ramp))
-        {
-            EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
-        }
         editor.RangeProperty(toonContrast, "Toon Contrast");
-        editor.RangeProperty(rampTint, "Ramp Tint");
-
         editor.RangeProperty(intensity, "Intensity");
         editor.RangeProperty(saturation, "Saturation");
 
@@ -189,45 +192,24 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         EditorGUILayout.Space();
 
         //Red ramp
-        editor.TexturePropertySingleLine(new GUIContent("Toon Ramp (R)", "The toon ramp texture to use on the red parts of the mask."), rampR);
-
-        if (TextureIsNotSetToClamp(rampR))
-        {
-            EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
-        }
+        ToonRampProperty(new GUIContent("Toon Ramp (R)", "The toon ramp texture to use on the red parts of the mask."), rampR);
         editor.RangeProperty(toonContrastR, "Toon Contrast (R)");
-        editor.RangeProperty(rampTintR, "Ramp Tint (R)");
-
         editor.RangeProperty(intensityR, "Intensity (R)");
         editor.RangeProperty(saturationR, "Saturation (R)");
 
         EditorGUILayout.Space();
 
         //Green ramp
-        editor.TexturePropertySingleLine(new GUIContent("Toon Ramp (G)", "The toon ramp texture to use on the green parts of the mask."), rampG);
-
-        if (TextureIsNotSetToClamp(rampG))
-        {
-            EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
-        }
+        ToonRampProperty(new GUIContent("Toon Ramp (G)", "The toon ramp texture to use on the green parts of the mask."), rampG);
         editor.RangeProperty(toonContrastG, "Toon Contrast (G)");
-        editor.RangeProperty(rampTintG, "Ramp Tint (G)");
-
         editor.RangeProperty(intensityG, "Intensity (G)");
         editor.RangeProperty(saturationG, "Saturation (G)");
 
         EditorGUILayout.Space();
 
         //Blue ramp
-        editor.TexturePropertySingleLine(new GUIContent("Toon Ramp (B)", "The toon ramp texture to use on the red parts of the mask."), rampB);
-
-        if (TextureIsNotSetToClamp(rampB))
-        {
-            EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
-        }
+        ToonRampProperty(new GUIContent("Toon Ramp (B)", "The toon ramp texture to use on the blue parts of the mask."), rampB);
         editor.RangeProperty(toonContrastB, "Toon Contrast (B)");
-        editor.RangeProperty(rampTintB, "Ramp Tint (B)");
-
         editor.RangeProperty(intensityB, "Intensity (B)");
         editor.RangeProperty(saturationB, "Saturation (B)");
     }
@@ -310,6 +292,30 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         editor.VectorProperty(vertexScale, "Scale");
     }
 
+    private void DrawEyeTracking()
+    {
+        eyeTrackingExpanded = Section("Eye Tracking", eyeTrackingExpanded);
+        if(!eyeTrackingExpanded)
+        {
+            return;
+        }
+
+        editor.ShaderProperty(targetEye, "Target Eye");
+
+        editor.RangeProperty(maxLookRange, "Maximum Look Range");
+
+        EditorGUILayout.HelpBox("The eye tracking pattern texture should be a horizontal black and white gradient texture. It scrolls from left to right over time. When the current pixel is black, the eyes will look straight ahead. When the current pixel is white, the eyes will look straight towards the camera. In-between values are possible.", MessageType.Info);
+
+        editor.TexturePropertySingleLine(new GUIContent("Eye Tracking Pattern Texture"), eyeTrackPatternTexture);
+
+        editor.RangeProperty(eyeTrackSpeed, "Pattern Scroll Speed");
+
+        editor.RangeProperty(eyeTrackBlur, "Pattern Blur");
+
+        EditorGUILayout.HelpBox("Blender FBX exports may be rotated 90 degrees on the X axis depending on export settings. Tick/untick this box if you experience this happening to your mesh.", MessageType.Info);
+        editor.ShaderProperty(eyeTrackBlenderCorrection, new GUIContent("Blender rotation correction"));
+    }
+
     private void DrawMisc()
     {
         miscExpanded = Section("Misc", miscExpanded);
@@ -320,12 +326,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         GUILayout.Label("Fallback Ramp", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("This fallback toon ramp is used in case your shaders are blocked. The softer toon ramp looks bad on VRChat's internal toon shader, so you can set a different fallback ramp here.", MessageType.Info);
-        editor.TexturePropertySingleLine(new GUIContent("Fallback Ramp", "Fallback toon ramp. Leave on default if you don't know what you're doing."), fallbackRamp);
-
-        if (TextureIsNotSetToClamp(fallbackRamp))
-        {
-            EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
-        }
+        ToonRampProperty(new GUIContent("Fallback Ramp", "Fallback toon ramp. Leave this on default if you don't know what you're doing."), fallbackRamp);
 
         EditorGUILayout.Space();
 
@@ -368,6 +369,17 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         return expanded;
     }
 
+    private void ToonRampProperty(GUIContent guiContent, MaterialProperty rampProperty)
+    {
+        editor.TexturePropertySingleLine(guiContent, rampProperty);
+
+        //Display warning if repeat mode is not set to clamp.
+        if (TextureIsNotSetToClamp(rampProperty))
+        {
+            EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
+        }
+    }
+
     private void FindProperties(MaterialProperty[] props)
     {
         //Main stuff
@@ -387,7 +399,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         overrideWorldLight = FindProperty("_OverrideWorldLight", props);
         billboardStaticLight = FindProperty("_BillboardStaticLight", props);
         ramp = FindProperty("_RealRamp", props);
-        rampTint = FindProperty("_RampTint", props);
         toonContrast = FindProperty("_ToonContrast", props);
         intensity = FindProperty("_Intensity", props);
         saturation = FindProperty("_Saturation", props);
@@ -403,17 +414,14 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         //Ramp mask stuff
         rampMaskTex = FindProperty("_RampMaskTex", props, false);
         rampR = FindProperty("_RampR", props, false);
-        rampTintR = FindProperty("_RampTintR", props, false);
         toonContrastR = FindProperty("_ToonContrastR", props, false);
         intensityR = FindProperty("_IntensityR", props, false);
         saturationR = FindProperty("_SaturationR", props, false);
         rampG = FindProperty("_RampG", props, false);
-        rampTintG = FindProperty("_RampTintG", props, false);
         toonContrastG = FindProperty("_ToonContrastG", props, false);
         intensityG = FindProperty("_IntensityG", props, false);
         saturationG = FindProperty("_SaturationG", props, false);
         rampB = FindProperty("_RampB", props, false);
-        rampTintB = FindProperty("_RampTintB", props, false);
         toonContrastB = FindProperty("_ToonContrastB", props, false);
         intensityB = FindProperty("_IntensityB", props, false);
         saturationB = FindProperty("_SaturationB", props, false);
@@ -434,6 +442,15 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         vertexOffset = FindProperty("_VertexOffset", props, false);
         vertexRotation = FindProperty("_VertexRotation", props, false);
         vertexScale = FindProperty("_VertexScale", props, false);
+
+        //Eye tracking stuff
+        targetEye = FindProperty("_TargetEye", props, false);
+        maxLookRange = FindProperty("_MaxLookRange", props, false);
+        randTest = FindProperty("_RandTest", props, false);
+        eyeTrackPatternTexture = FindProperty("_EyeTrackingPatternTex", props, false);
+        eyeTrackSpeed = FindProperty("_EyeTrackingScrollSpeed", props, false);
+        eyeTrackBlur = FindProperty("_EyeTrackingBlur", props, false);
+        eyeTrackBlenderCorrection = FindProperty("_EyeTrackingRotationCorrection", props, false);
 
         //Shadow stuff
         receiveShadows = FindProperty("_ReceiveShadows", props);
@@ -459,6 +476,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         return vertexOffset != null;
     }
 
+    private bool HasEyeTracking()
+    {
+        return targetEye != null;
+    }
+
     private bool TextureIsNotSetToClamp(MaterialProperty prop)
     {
         return prop.textureValue != null && prop.textureValue.wrapMode != TextureWrapMode.Clamp;
@@ -469,7 +491,13 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         // Delete all keywords first
         material.shaderKeywords = new string[] { };
 
-        // Add Metallic or Specular keyword *if* used.
+        // Add normal map keyword if used.
+        if (material.GetTexture("_NormalMap"))
+        {
+            material.EnableKeyword("_NORMALMAP");
+        }
+
+        // Add Metallic or Specular keyword if used.
         if (metallicMode.floatValue == 1)
         {
             material.EnableKeyword("_METALLICGLOSSMAP");
