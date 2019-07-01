@@ -88,7 +88,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private bool miscExpanded = false;
 
     private const float kMaxfp16 = 65536f; // Clamp to a value that fits into fp16.
-    ColorPickerHDRConfig HdrPickerConfig = new ColorPickerHDRConfig(0f, kMaxfp16, 1 / kMaxfp16, 3f);
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
@@ -137,7 +136,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         EditorGUILayout.Space();
 
-        editor.TexturePropertyWithHDRColor(new GUIContent("Emission", "The emission map (RGB) and HDR color tint."), emissionMap, emissionColor, HdrPickerConfig, false);
+        editor.TexturePropertyWithHDRColor(new GUIContent("Emission", "The emission map (RGB) and HDR color tint."), emissionMap, emissionColor, false);
         editor.TextureScaleOffsetProperty(emissionMap);
 
         EditorGUILayout.Space();
@@ -275,7 +274,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
     private void DrawSpecularWorkflow()
     {
-        editor.TexturePropertyWithHDRColor(new GUIContent("Specular Map", "Defines Specular color (RGB) and Smoothness (A). Lower smoothness blurs reflections."), specularMap, specularColor, HdrPickerConfig, false);
+        editor.TexturePropertyWithHDRColor(new GUIContent("Specular Map", "Defines Specular color (RGB) and Smoothness (A). Lower smoothness blurs reflections."), specularMap, specularColor, false);
         editor.RangeProperty(smoothness, "Smoothness");
     }
 

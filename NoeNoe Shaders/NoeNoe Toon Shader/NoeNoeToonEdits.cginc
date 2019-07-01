@@ -154,9 +154,11 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	}
 	
 	#ifdef UNITY_PASS_FORWARDBASE
-		float4 _EmissionMap_var = tex2D(_EmissionMap,TRANSFORM_TEX(i.uv0, _EmissionMap));
-		float3 MappedEmissive = (_EmissionMap_var.rgb*_EmissionColor);
-		float3 emissive = MappedEmissive;
+		#ifndef NOENOETOON_OUTLINE_PASS
+			float4 _EmissionMap_var = tex2D(_EmissionMap,TRANSFORM_TEX(i.uv0, _EmissionMap));
+			float3 MappedEmissive = (_EmissionMap_var.rgb*_EmissionColor);
+			float3 emissive = MappedEmissive;
+		#endif
 	#endif
 	
 	float3 FlatLighting = saturate((FlatLightSH( float3(0,1,0) )+(_LightColor0.rgb*attenuation)));
@@ -323,8 +325,10 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	#endif
 	
 	#ifdef UNITY_PASS_FORWARDBASE
-		// Apply emission
-		finalColor = emissive + finalColor;
+		#ifndef NOENOETOON_OUTLINE_PASS
+			// Apply emission
+			finalColor = emissive + finalColor;
+		#endif
 	#endif
 	
 	float finalAlpha = 1;

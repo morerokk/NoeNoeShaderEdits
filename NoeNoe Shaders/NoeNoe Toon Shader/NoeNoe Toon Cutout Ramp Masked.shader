@@ -36,8 +36,6 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
         _SaturationB ("Saturation (B)", Range(0, 1)) = 0.65
 		_Ramp ("Fallback Ramp", 2D) = "white" {}
 		[Toggle(_)] _ReceiveShadows ("Receive Shadows", Float) = 0
-		[Enum(None,0,Additive (spa),1,Multiplicative (sph),2)] _MatCapMode("Matcap Mode", Float) = 0
-		_MatCap ("Matcap", 2D) = "white" {}
     }
     SubShader {
         Tags {
@@ -52,7 +50,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #define UNITY_PASS_FORWARDBASE
+			
+			#ifndef UNITY_PASS_FORWARDBASE
+				#define UNITY_PASS_FORWARDBASE
+			#endif
+			
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -114,7 +116,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #define UNITY_PASS_FORWARDADD
+			
+			#ifndef UNITY_PASS_FORWARDADD
+				#define UNITY_PASS_FORWARDADD
+			#endif
+
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -176,7 +182,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             CGPROGRAM
             #pragma vertex vertShadow
             #pragma fragment fragShadow
-            #define UNITY_PASS_SHADOWCASTER
+			
+			#ifndef UNITY_PASS_SHADOWCASTER
+				#define UNITY_PASS_SHADOWCASTER
+			#endif
+
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "Lighting.cginc"

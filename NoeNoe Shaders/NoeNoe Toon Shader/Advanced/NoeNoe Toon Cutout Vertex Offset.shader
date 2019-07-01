@@ -70,7 +70,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
             CGPROGRAM
             #pragma vertex vertOffset
             #pragma fragment frag
-            #define UNITY_PASS_FORWARDBASE
+			
+			#ifndef UNITY_PASS_FORWARDBASE
+				#define UNITY_PASS_FORWARDBASE
+			#endif
+			
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -156,6 +160,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
 			#define NOENOETOON_OUTLINE_PASS
 			
             uniform sampler2D _OutlineTex; uniform float4 _OutlineTex_ST;
+			uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
             uniform float _OutlineWidth;
             uniform fixed _ScreenSpaceOutline;
             uniform float4 _OutlineColor;
@@ -242,7 +247,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
             CGPROGRAM
             #pragma vertex vertOffset
             #pragma fragment frag
-            #define UNITY_PASS_FORWARDADD
+			
+			#ifndef UNITY_PASS_FORWARDADD
+				#define UNITY_PASS_FORWARDADD
+			#endif
+			
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -304,7 +313,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
             CGPROGRAM
             #pragma vertex vertShadowOffset
             #pragma fragment fragShadow
-            #define UNITY_PASS_SHADOWCASTER
+			
+			#ifndef UNITY_PASS_SHADOWCASTER
+				#define UNITY_PASS_SHADOWCASTER
+			#endif
+
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
@@ -377,6 +390,5 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
             ENDCG
         }
     }
-    FallBack "Diffuse"
 	CustomEditor "NoeNoeToonEditorGUI"
 }
