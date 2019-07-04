@@ -505,5 +505,24 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         {
             material.EnableKeyword("_SPECGLOSSMAP");
         }
+
+        // Override world light dir keyword
+        if (overrideWorldLight.floatValue == 1)
+        {
+            material.EnableKeyword("_OVERRIDE_WORLD_LIGHT_DIR_ON");
+        }
+
+        // Receive Shadows keyword
+        if (receiveShadows.floatValue == 1)
+        {
+            material.EnableKeyword("_SHADOW_RECEIVE_ON");
+        }
+
+        // Emission keyword, alpha is ignored.
+        Color emissionCol = emissionColor.colorValue;
+        if (new Color(emissionCol.r, emissionCol.g, emissionCol.b, 1) != Color.black)
+        {
+            material.EnableKeyword("_EMISSION");
+        }
     }
 }

@@ -43,7 +43,7 @@ float3 GIsonarDirection()
     return GIsonar_dir_vec;
 }
 
-float4 lightDirection(float4 fallback, float alwaysUseFallback)
+float4 lightDirection(float4 fallback)
 {
 	// Try to get world light direction from realtime directional light.
 	float4 worldLightDir = _WorldSpaceLightPos0 * _WorldLightIntensity;
@@ -62,7 +62,7 @@ float4 lightDirection(float4 fallback, float alwaysUseFallback)
 			worldLightDir *= _WorldLightIntensity;
 		}
 	}
-	return lerp(worldLightDir, fallback, alwaysUseFallback);
+	return worldLightDir;
 }
 
 float3 FlatLightSH(float3 normal)
@@ -107,7 +107,11 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	float isFrontFace = ( facing >= 0 ? 1 : 0 );
 	float faceSign = ( facing >= 0 ? 1 : -1 );
 
-	float4 staticLightDir = lightDirection(_StaticToonLight, _OverrideWorldLight);
+	#if defined(_OVERRIDE_WORLD_LIGHT_DIR_ON)
+		float4 staticLightDir = _StaticToonLight;
+	#else
+		float4 staticLightDir = lightDirection(_StaticToonLight);
+	#endif
 	
 	i.normalDir = normalize(i.normalDir);
 	i.normalDir *= faceSign;
@@ -146,19 +150,11 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	float3 lightColor = _LightColor0.rgb;
 ////// Lighting:
 
-	UNITY_LIGHT_ATTENUATION(attenuation, i, i.posWorld.xyz);
-	if(_ReceiveShadows == 0)
-	{
+	#if defined(_SHADOW_RECEIVE_ON)
+		UNITY_LIGHT_ATTENUATION(attenuation, i, i.posWorld.xyz);
+	#else
 		// Disable shadow receiving entirely
-		attenuation = LIGHT_ATTENUATION(i) / SHADOW_ATTENUATION(i);
-	}
-	
-	#ifdef UNITY_PASS_FORWARDBASE
-		#ifndef NOENOETOON_OUTLINE_PASS
-			float4 _EmissionMap_var = tex2D(_EmissionMap,TRANSFORM_TEX(i.uv0, _EmissionMap));
-			float3 MappedEmissive = (_EmissionMap_var.rgb*_EmissionColor);
-			float3 emissive = MappedEmissive;
-		#endif
+		float attenuation = LIGHT_ATTENUATION(i) / SHADOW_ATTENUATION(i);
 	#endif
 	
 	float3 FlatLighting = saturate((FlatLightSH( float3(0,1,0) )+(_LightColor0.rgb*attenuation)));
@@ -324,8 +320,13 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		#endif
 	#endif
 	
-	#ifdef UNITY_PASS_FORWARDBASE
+	#if defined(UNITY_PASS_FORWARDBASE) && defined(_EMISSION)
 		#ifndef NOENOETOON_OUTLINE_PASS
+			// Sample emission
+			float4 _EmissionMap_var = tex2D(_EmissionMap,TRANSFORM_TEX(i.uv0, _EmissionMap));
+			float3 MappedEmissive = (_EmissionMap_var.rgb*_EmissionColor);
+			float3 emissive = MappedEmissive;
+		
 			// Apply emission
 			finalColor = emissive + finalColor;
 		#endif

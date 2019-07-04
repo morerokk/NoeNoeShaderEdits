@@ -4,7 +4,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
         _MainTex ("Main texture (RGB)", 2D) = "white" {}
         _StaticToonLight ("Static Toon Light", Vector) = (0,2.5,0,0)
 		_WorldLightIntensity ("World Light Dir Multiplier", Range(0, 10)) = 1
-		[Toggle(_)] _OverrideWorldLight ("Override World Light", Float) = 0
+		[Toggle(_OVERRIDE_WORLD_LIGHT_DIR_ON)] _OverrideWorldLight ("Override World Light", Float) = 0
         [Toggle(_)] _BillboardStaticLight ("Billboard Static Light", Float ) = 0
         _RealRamp ("Default Ramp", 2D) = "white" {}
         _ToonContrast ("Default Toon Contrast", Range(0, 1)) = 0.25
@@ -35,7 +35,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
         _IntensityB ("Intensity (B)", Range(0, 10)) = 0.8
         _SaturationB ("Saturation (B)", Range(0, 1)) = 0.65
 		_Ramp ("Fallback Ramp", 2D) = "white" {}
-		[Toggle(_)] _ReceiveShadows ("Receive Shadows", Float) = 0
+		[Toggle(_SHADOW_RECEIVE_ON)] _ReceiveShadows ("Receive Shadows", Float) = 0
     }
     SubShader {
         Tags {
@@ -68,6 +68,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 			#pragma shader_feature _METALLICGLOSSMAP
 			#pragma shader_feature _SPECGLOSSMAP
 			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
+			#pragma shader_feature_local _SHADOW_RECEIVE_ON
+			#pragma shader_feature_local _EMISSION
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
@@ -134,6 +137,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 			#pragma shader_feature _METALLICGLOSSMAP
 			#pragma shader_feature _SPECGLOSSMAP
 			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
+			#pragma shader_feature_local _SHADOW_RECEIVE_ON
+			#pragma shader_feature_local _EMISSION
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
