@@ -21,7 +21,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty toonContrast = null;
     private MaterialProperty intensity = null;
     private MaterialProperty saturation = null;
-    private MaterialProperty fallbackRamp = null;
 
     //Metallic
     private MaterialProperty metallicMode = null;
@@ -72,6 +71,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty eyeTrackBlur = null;
     private MaterialProperty eyeTrackBlenderCorrection = null;
 
+    //Matcap
+    private MaterialProperty matcapMode = null;
+    private MaterialProperty matcapTexture = null;
+    private MaterialProperty matcapStrength = null;
+
     //Shadows
     private MaterialProperty receiveShadows = null;
 
@@ -85,6 +89,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private bool metallicExpanded = false;
     private bool vertexOffsetExpanded = false;
     private bool eyeTrackingExpanded = false;
+    private bool matcapExpanded = false;
     private bool miscExpanded = false;
 
     private const float kMaxfp16 = 65536f; // Clamp to a value that fits into fp16.
@@ -111,6 +116,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         {
             DrawEyeTracking();
         }
+
+        DrawMatcap();
         DrawMisc();
 
         SetupKeywords();
@@ -315,6 +322,28 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         editor.ShaderProperty(eyeTrackBlenderCorrection, new GUIContent("Blender rotation correction"));
     }
 
+    private void DrawMatcap()
+    {
+        matcapExpanded = Section("Matcap", matcapExpanded);
+        if (!matcapExpanded)
+        {
+            return;
+        }
+
+        editor.ShaderProperty(matcapMode, new GUIContent("Matcap Mode"));
+
+        EditorGUI.BeginDisabledGroup(matcapMode.floatValue == 0);
+        editor.TexturePropertySingleLine(new GUIContent("Matcap Texture"), matcapTexture);
+
+        editor.ShaderProperty(matcapStrength, new GUIContent("Matcap strength"));
+
+        if(matcapMode.floatValue != 0 && matcapStrength.floatValue == 0)
+        {
+            EditorGUILayout.HelpBox("Matcap strength is zero, consider turning Matcap mode off for performance.", MessageType.Warning);
+        }
+        EditorGUI.EndDisabledGroup();
+    }
+
     private void DrawMisc()
     {
         miscExpanded = Section("Misc", miscExpanded);
@@ -322,12 +351,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         {
             return;
         }
-
-        GUILayout.Label("Fallback Ramp", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("This fallback toon ramp is used in case your shaders are blocked. The softer toon ramp looks bad on VRChat's internal toon shader, so you can set a different fallback ramp here.", MessageType.Info);
-        ToonRampProperty(new GUIContent("Fallback Ramp", "Fallback toon ramp. Leave this on default if you don't know what you're doing."), fallbackRamp);
-
-        EditorGUILayout.Space();
 
         GUILayout.Label("Shadows", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("Enabling receive shadows may cause self-shadowing. This can look good, but if you don't want it, either disable Receive Shadows here, or disable Receive Shadows/Cast Shadows on your mesh renderer.", MessageType.Info);
@@ -388,7 +411,6 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         emissionColor = FindProperty("_EmissionColor", props);
         normalMap = FindProperty("_NormalMap", props);
         alphaCutoff = FindProperty("_Cutoff", props);
-        fallbackRamp = FindProperty("_Ramp", props);
 
         sidedness = FindProperty("_Cull", props, false);
 
@@ -450,6 +472,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         eyeTrackSpeed = FindProperty("_EyeTrackingScrollSpeed", props, false);
         eyeTrackBlur = FindProperty("_EyeTrackingBlur", props, false);
         eyeTrackBlenderCorrection = FindProperty("_EyeTrackingRotationCorrection", props, false);
+
+        //Matcap stuff
+        matcapMode = FindProperty("_MatCapMode", props);
+        matcapTexture = FindProperty("_MatCap", props);
+        matcapStrength = FindProperty("_MatCapStrength", props);
 
         //Shadow stuff
         receiveShadows = FindProperty("_ReceiveShadows", props);
@@ -523,6 +550,16 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if (new Color(emissionCol.r, emissionCol.g, emissionCol.b, 1) != Color.black)
         {
             material.EnableKeyword("_EMISSION");
+        }
+
+        // Matcap keywords
+        if(matcapMode.floatValue == 1)
+        {
+            material.EnableKeyword("_MATCAP_ADD");
+        }
+        else if(matcapMode.floatValue == 2)
+        {
+            material.EnableKeyword("_MATCAP_MULTIPLY");
         }
     }
 }

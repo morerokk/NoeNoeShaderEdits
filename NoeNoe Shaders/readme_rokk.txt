@@ -8,6 +8,7 @@ This pack features a bunch of edits of Noenoe shaders. All edits have been done 
 - Renamed Opaque to Cutout to be more compatible with the shader fallback system
 - Added "Vertex Offset" shader under Overlay/Misc. This shader features properties like Position, Rotation and Scale within the shader. Can be animated. Great for niche uses that would otherwise break the IK, such as up/down floating animations, upside-down models, or scaling.
 - Added option for receiving shadows. This includes self-shadowing. This doesn't always look good, so it is off by default. If desired, you can also turn off Cast Shadows on the mesh renderer instead, allowing you to still receive shadows properly.
+- Added additive and multiplicative matcap support
 
 Large improvements to the outline shader:
 - Added an "outer only" outline mode. In this mode, outlines will not be rendered over the model, only on the outer edges. Good for avoiding artifacts and for stylistic effect.

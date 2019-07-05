@@ -14,6 +14,8 @@ Quick list of changes:
 * Renamed Opaque to Cutout to be more compatible with the shader fallback system
 * Added "Vertex Offset" shader under Overlay/Misc. This shader features properties like Position, Rotation and Scale within the shader. These properties can be animated. Great for niche uses that would otherwise break the IK, such as up/down floating animations, upside-down models, or scaling.
 * Optional support for receiving shadows (including self-shadowing).
+* Added additive and multiplicative matcap support to each shader
+* Added local shader keywords to improve performance a bit
 
 The self-shadowing is not always desirable, which is why the option is off by default. If desired, you can also turn off Cast Shadows on the mesh renderer instead, allowing you to still receive shadows properly.
 

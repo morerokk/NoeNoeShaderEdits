@@ -27,6 +27,9 @@ float _Glossiness;
 //float4 _SpecColor;
 sampler2D _SpecGlossMap;
 
+sampler2D _MatCap;
+float _MatCapStrength;
+
 float3 GIsonarDirection()
 {
     float3 GIsonar_dir_vec = (unity_SHAr.xyz*unity_SHAr.w + unity_SHAg.xyz*unity_SHAg.w + unity_SHAb.xyz*unity_SHAb.w);
@@ -68,6 +71,14 @@ float4 lightDirection(float4 fallback)
 float3 FlatLightSH(float3 normal)
 {
 	return ShadeSH9(half4(normal, 1.0));
+}
+
+half2 matcapSample(half3 worldUp, half3 viewDirection, half3 normalDirection)
+{
+    half3 worldViewUp = normalize(worldUp - viewDirection * dot(viewDirection, worldUp));
+    half3 worldViewRight = normalize(cross(viewDirection, worldViewUp));
+    half2 matcapUV = half2(dot(worldViewRight, normalDirection), dot(worldViewUp, normalDirection)) * 0.5 + 0.5;
+    return matcapUV;				
 }
 
 struct VertexInput {
@@ -185,6 +196,21 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	
 	float3 Diffuse = lerp(lerp(MappedTexture,dot(MappedTexture,float3(0.3,0.59,0.11)),(-0.5)),dot(lerp(MappedTexture,dot(MappedTexture,float3(0.3,0.59,0.11)),(-0.5)),float3(0.3,0.59,0.11)),(1.0 - SaturationVar));
 	
+	// Matcap
+	#if defined(_MATCAP_ADD) || defined(_MATCAP_MULTIPLY)
+		half3 upVector = half3(0,1,0);
+		half2 matcapUv = matcapSample(upVector, i.viewDir, normalDirection);
+		float4 matcapCol = tex2D(_MatCap, matcapUv);
+		
+		#if defined(_MATCAP_ADD)
+			float3 matcapResult = Diffuse + matcapCol.rgb;
+		#else
+			float3 matcapResult = Diffuse * matcapCol.rgb;
+		#endif
+		
+		Diffuse = lerp(Diffuse, matcapResult, _MatCapStrength);
+	#endif
+	
 	//Reflections
 	
 	//Metallic
@@ -198,7 +224,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 			float roughness = 1 - (metallicTex.a * _Glossiness);
 			roughness *= 1.7 - 0.7 * roughness;
 			
-			float3 reflectedDir = reflect(-i.viewDir, normalize(i.normalDir));
+			float3 reflectedDir = reflect(-i.viewDir, normalDirection);
 			
 			float3 reflectionColor;
 			
@@ -239,7 +265,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 			float roughness = 1 - (specularTex.a * _Glossiness);
 			roughness *= 1.7 - 0.7 * roughness;
 			
-			float3 reflectedDir = reflect(-i.viewDir, normalize(i.normalDir));
+			float3 reflectedDir = reflect(-i.viewDir, normalDirection);
 			float3 reflectionColor;
 			
 			//Sample second probe if available.
@@ -286,20 +312,20 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		float4 node_9498;
 		float ToonContrast_var;
 		if(maskColor.r > 0.5) {
-			node_9498 = tex2D(_RampR,TRANSFORM_TEX(node_8091, _RealRamp));
+			node_9498 = tex2D(_RampR,TRANSFORM_TEX(node_8091, _Ramp));
 			ToonContrast_var = _ToonContrastR;
 		} else if(maskColor.g > 0.5) {
-			node_9498 = tex2D(_RampG,TRANSFORM_TEX(node_8091, _RealRamp));
+			node_9498 = tex2D(_RampG,TRANSFORM_TEX(node_8091, _Ramp));
 			ToonContrast_var = _ToonContrastG;
 		} else if(maskColor.b > 0.5) {
-			node_9498 = tex2D(_RampB,TRANSFORM_TEX(node_8091, _RealRamp));
+			node_9498 = tex2D(_RampB,TRANSFORM_TEX(node_8091, _Ramp));
 			ToonContrast_var = _ToonContrastB;
 		} else {				
-			node_9498 = tex2D(_RealRamp,TRANSFORM_TEX(node_8091, _RealRamp));
+			node_9498 = tex2D(_Ramp,TRANSFORM_TEX(node_8091, _Ramp));
 			ToonContrast_var = _ToonContrast;
 		}
 	#else
-		float4 node_9498 = tex2D(_RealRamp,TRANSFORM_TEX(node_8091, _RealRamp));
+		float4 node_9498 = tex2D(_Ramp,TRANSFORM_TEX(node_8091, _Ramp));
 		float ToonContrast_var = _ToonContrast;
 	#endif
 	
