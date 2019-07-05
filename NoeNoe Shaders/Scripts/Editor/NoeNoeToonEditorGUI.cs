@@ -419,7 +419,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         worldLightIntensity = FindProperty("_WorldLightIntensity", props);
         overrideWorldLight = FindProperty("_OverrideWorldLight", props);
         billboardStaticLight = FindProperty("_BillboardStaticLight", props);
-        ramp = FindProperty("_RealRamp", props);
+        ramp = FindProperty("_Ramp", props);
         toonContrast = FindProperty("_ToonContrast", props);
         intensity = FindProperty("_Intensity", props);
         saturation = FindProperty("_Saturation", props);
