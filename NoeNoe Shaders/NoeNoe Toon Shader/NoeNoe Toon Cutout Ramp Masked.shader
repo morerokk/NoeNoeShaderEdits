@@ -38,6 +38,16 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
 		_MatCap ("Matcap Texture", 2D) = "white" {}
 		[Enum(Off,0,Additive (spa),1,Multiply (sph),2)] _MatCapMode ("Matcap Mode", Float) = 0
 		_MatCapStrength ("Matcap Strength", Range(0, 1)) = 1
+		_OverlayStrength ("Overlay Strength", Range(0, 1)) = 1
+		[Enum(Replace,0,Multiply,1)] _OverlayMode ("Overlay Mode", Float) = 0
+		[Toggle(_PANO_ON)] _PanoEnabled ("Panosphere Enabled", Float) = 0
+        _TileOverlay ("Panosphere Texture", 2D) = "white" {}
+        _TileSpeedX ("Pano Rotation Speed X", Range(-1, 1)) = 0
+        _TileSpeedY ("Pano Rotation Speed Y", Range(-1, 1)) = 0
+		[Toggle(_CUBEMAP_ON)] _CubemapEnabled ("Cubemap Enabled", Float) = 0
+        _CubemapOverlay ("Cubemap Texture", Cube) = "_Skybox" {}
+        _CubemapRotationSpeed ("Cubemap Rotation Speed", Vector) = (0,0,0,0)
+        _CrossfadeTileCubemap ("Crossfade Pano / Cubemap", Range(0, 1)) = 0.5
     }
     SubShader {
         Tags {
@@ -67,13 +77,14 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             #pragma multi_compile_fwdbase_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _METALLICGLOSSMAP
-			#pragma shader_feature _SPECGLOSSMAP
+			#pragma shader_feature _ _METALLICGLOSSMAP _SPECGLOSSMAP
 			#pragma shader_feature _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION
 			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
+			#pragma shader_feature_local _PANO_ON
+			#pragma shader_feature_local _CUBEMAP_ON
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
@@ -137,13 +148,14 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Ramp Masked" {
             #pragma multi_compile_fwdadd_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _METALLICGLOSSMAP
-			#pragma shader_feature _SPECGLOSSMAP
+			#pragma shader_feature _ _METALLICGLOSSMAP _SPECGLOSSMAP
 			#pragma shader_feature _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION
 			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
+			#pragma shader_feature_local _PANO_ON
+			#pragma shader_feature_local _CUBEMAP_ON
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;

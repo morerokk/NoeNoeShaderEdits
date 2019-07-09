@@ -19,16 +19,41 @@ float3 _EmissionColor;
 	uniform float _SaturationB;
 #endif
 
-sampler2D _MetallicGlossMap;
+#ifdef _METALLICGLOSSMAP
+	sampler2D _MetallicGlossMap;
+#endif
+
 float _Metallic;
 float _Glossiness;
 
-// Why is this already in use?
-//float4 _SpecColor;
-sampler2D _SpecGlossMap;
+#ifdef _SPECGLOSSMAP
+	// Why is this already in use?
+	//float4 _SpecColor;
+	sampler2D _SpecGlossMap;
+#endif
 
-sampler2D _MatCap;
-float _MatCapStrength;
+#if defined(_MATCAP_ADD) || defined(_MATCAP_MULTIPLY)
+	sampler2D _MatCap;
+	float _MatCapStrength;
+#endif
+
+#if defined(_PANO_ON) || defined(_CUBEMAP_ON)
+	float _OverlayStrength;
+	float _CrossfadeTileCubemap;
+	float _OverlayMode;
+	
+	#ifdef _PANO_ON
+		sampler2D _TileOverlay;
+		float4 _TileOverlay_ST;
+		float _TileSpeedX;
+		float _TileSpeedY;
+	#endif
+	
+	#ifdef _CUBEMAP_ON
+		samplerCUBE _CubemapOverlay;
+		float4 _CubemapRotationSpeed;
+	#endif
+#endif
 
 float3 GIsonarDirection()
 {
@@ -81,6 +106,40 @@ half2 matcapSample(half3 worldUp, half3 viewDirection, half3 normalDirection)
     return matcapUV;				
 }
 
+float2 PanoProjection(float3 coords)
+{
+	float3 normalizedCoords = normalize(coords);
+	float latitude = acos(normalizedCoords.y);
+	float longitude = atan2(normalizedCoords.z, normalizedCoords.x);
+	float2 sphereCoords = float2(longitude, latitude) * float2(0.5/UNITY_PI, 1.0/UNITY_PI);
+	sphereCoords = float2(0.5,1.0) - sphereCoords;
+	return (sphereCoords + float4(0, 1-unity_StereoEyeIndex,1,0.5).xy) * float4(0, 1-unity_StereoEyeIndex,1,0.5).zw;
+}
+
+float3 CubemapRotator( float3 Dir , float AngX , float AngY , float AngZ )
+{
+	AngX = radians(AngX);
+	AngY = radians(AngY);
+	AngZ = radians(AngZ);
+
+	float3x3 rotationX ={float3(1.0,0.0,0.0),
+								float3(0.0,cos(AngX),-sin(AngX)),
+								float3(0.0,sin(AngX),cos(AngX))};
+	float3 Val = mul(Dir, rotationX);
+
+	float3x3 rotationY ={float3(cos(AngY),0.0,sin(AngY)),
+								float3(0.0,1.0,0.0),
+								float3(-sin(AngY),0.0,cos(AngY))};
+	Val = mul(Val, rotationY);
+
+	float3x3 rotationZ ={float3(cos(AngZ),-sin(AngZ),0.0),
+								float3(sin(AngZ),cos(AngZ),0.0),
+								float3(0.0,0.0,1.0)};
+	Val = mul(Val, rotationZ);
+
+	return Val;
+}
+
 struct VertexInput {
 	float4 vertex : POSITION;
 	float3 normal : NORMAL;
@@ -117,6 +176,8 @@ VertexOutput vert (VertexInput v) {
 float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	float isFrontFace = ( facing >= 0 ? 1 : 0 );
 	float faceSign = ( facing >= 0 ? 1 : -1 );
+	
+	float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
 
 	#if defined(_OVERRIDE_WORLD_LIGHT_DIR_ON)
 		float4 staticLightDir = _StaticToonLight;
@@ -128,7 +189,6 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	i.normalDir *= faceSign;
 	
 	float3x3 tangentTransform = float3x3( i.tangentDir, i.bitangentDir, i.normalDir);
-	float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
 	#if defined(_NORMALMAP)
 		float3 _NormalMap_var = UnpackNormal(tex2D(_NormalMap,TRANSFORM_TEX(i.uv0, _NormalMap)));
 	#else
@@ -199,7 +259,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	// Matcap
 	#if defined(_MATCAP_ADD) || defined(_MATCAP_MULTIPLY)
 		half3 upVector = half3(0,1,0);
-		half2 matcapUv = matcapSample(upVector, i.viewDir, normalDirection);
+		half2 matcapUv = matcapSample(upVector, viewDirection, normalDirection);
 		float4 matcapCol = tex2D(_MatCap, matcapUv);
 		
 		#if defined(_MATCAP_ADD)
@@ -209,6 +269,46 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		#endif
 		
 		Diffuse = lerp(Diffuse, matcapResult, _MatCapStrength);
+	#endif
+	
+	// Overlay
+	#if defined(_PANO_ON)
+		float2 panoUV = PanoProjection(-viewDirection);
+		float2 ddxuv = ddx(panoUV);
+		float2 ddyuv = ddy(panoUV);
+		if(any(fwidth(panoUV) > .5))
+		{
+			ddxuv = ddyuv = 0.001;
+		}
+		
+		panoUV += float2(_TileSpeedX * _Time.y, _TileSpeedY * _Time.y);
+		float4 panoOverlay = tex2D(_TileOverlay, TRANSFORM_TEX(panoUV, _TileOverlay), ddxuv, ddyuv);		
+	#endif
+	
+	#if defined(_CUBEMAP_ON)
+		float4 cubeRotation = _CubemapRotationSpeed * _Time.y;
+		float3 RotatedCubemapDirection = CubemapRotator(viewDirection.xyz, cubeRotation.x, cubeRotation.y, cubeRotation.z);
+		float4 cubeOverlay = texCUBE(_CubemapOverlay, RotatedCubemapDirection);
+	#endif
+	
+	// Combine panosphere and cubemaps, then combine that with the diffuse
+	#if defined(_PANO_ON) || defined(_CUBEMAP_ON)
+		//Create overlay depending on which mode(s) are on
+		#if defined(_PANO_ON) && defined(_CUBEMAP_ON) //Both are on
+			// Mix pano and cubemap overlays
+			float3 overlay = lerp(panoOverlay.rgb, cubeOverlay.rgb, _CrossfadeTileCubemap);
+		#elif defined(_PANO_ON) // Only pano is on
+			float3 overlay = panoOverlay.rgb;
+		#else // Only cubemap is on
+			float3 overlay = cubeOverlay.rgb;
+		#endif
+		
+		// Combine with diffuse
+		// Allow switching between Replace and Multiply modes
+		float3 overlayResult = Diffuse * overlay;
+		overlayResult = lerp(overlay, overlayResult, _OverlayMode);
+		
+		Diffuse = lerp(Diffuse, overlayResult, _OverlayStrength);
 	#endif
 	
 	//Reflections
@@ -224,7 +324,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 			float roughness = 1 - (metallicTex.a * _Glossiness);
 			roughness *= 1.7 - 0.7 * roughness;
 			
-			float3 reflectedDir = reflect(-i.viewDir, normalDirection);
+			float3 reflectedDir = reflect(-viewDirection, normalDirection);
 			
 			float3 reflectionColor;
 			
@@ -265,7 +365,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 			float roughness = 1 - (specularTex.a * _Glossiness);
 			roughness *= 1.7 - 0.7 * roughness;
 			
-			float3 reflectedDir = reflect(-i.viewDir, normalDirection);
+			float3 reflectedDir = reflect(-viewDirection, normalDirection);
 			float3 reflectionColor;
 			
 			//Sample second probe if available.

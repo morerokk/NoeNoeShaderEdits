@@ -9,11 +9,14 @@ This pack features a bunch of edits of Noenoe shaders. All edits have been done 
 - Added "Vertex Offset" shader under Overlay/Misc. This shader features properties like Position, Rotation and Scale within the shader. Can be animated. Great for niche uses that would otherwise break the IK, such as up/down floating animations, upside-down models, or scaling.
 - Added option for receiving shadows. This includes self-shadowing. This doesn't always look good, so it is off by default. If desired, you can also turn off Cast Shadows on the mesh renderer instead, allowing you to still receive shadows properly.
 - Added additive and multiplicative matcap support
+- Added and improved overlay support to the toon shaders. This effectively makes the "Lit Overlay" family of shaders a legacy thing, and may be removed in the future.
 
 Large improvements to the outline shader:
 - Added an "outer only" outline mode. In this mode, outlines will not be rendered over the model, only on the outer edges. Good for avoiding artifacts and for stylistic effect.
 - Added support for tinted outlines. You can now supply an outline texture that will be used, rather than only being able to use solid colors. The texture's alpha channel additionally determines the thickness of the outline in that area.
 - Outlines can optionally use Cutout
+
+Overlay support has been ported to the "toon" shader and has been improved upon a little. Supports panospheres and cubemaps. Panospheres will look weird around the top/bottom unless you use a texture meant for it.
 
 This pack also adds a "ramp masked" version of the Cutout shader. Essentially, this uses a mask texture to allow you to define up to *four* different toon ramps,
 toon contrast, intensity and saturation values, all on the same material. Great for applying a skin-colored toon ramp to the skin without having to separate the material,

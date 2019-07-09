@@ -16,6 +16,7 @@ Quick list of changes:
 * Optional support for receiving shadows (including self-shadowing).
 * Added additive and multiplicative matcap support to each shader
 * Added local shader keywords to improve performance a bit
+* Added the panosphere/cubemap overlay features to the toon shaders and improved them a bit
 
 The self-shadowing is not always desirable, which is why the option is off by default. If desired, you can also turn off Cast Shadows on the mesh renderer instead, allowing you to still receive shadows properly.
 

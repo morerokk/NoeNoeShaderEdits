@@ -76,6 +76,20 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty matcapTexture = null;
     private MaterialProperty matcapStrength = null;
 
+    //Overlay stuff
+    private MaterialProperty overlayMode = null;
+    private MaterialProperty overlayStrength = null;
+    private MaterialProperty panoCubeCrossfade = null;
+    //Pano
+    private MaterialProperty panosphereEnabled = null;
+    private MaterialProperty panoTex = null;
+    private MaterialProperty panoRotationSpeedX = null;
+    private MaterialProperty panoRotationSpeedY = null;
+    //Cubemap
+    private MaterialProperty cubemapEnabled = null;
+    private MaterialProperty cubemapTex = null;
+    private MaterialProperty cubemapRotationSpeed = null;
+
     //Shadows
     private MaterialProperty receiveShadows = null;
 
@@ -90,9 +104,12 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private bool vertexOffsetExpanded = false;
     private bool eyeTrackingExpanded = false;
     private bool matcapExpanded = false;
+    private bool overlayExpanded = false;
     private bool miscExpanded = false;
 
     private const float kMaxfp16 = 65536f; // Clamp to a value that fits into fp16.
+    private float defaultLabelWidth;
+    private float defaultFieldWidth;
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
@@ -100,6 +117,9 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         this.editor = materialEditor;
 
         material = materialEditor.target as Material;
+
+        defaultLabelWidth = EditorGUIUtility.labelWidth;
+        defaultFieldWidth = EditorGUIUtility.fieldWidth;
 
         DrawMain();
         DrawToonLighting();
@@ -118,6 +138,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         }
 
         DrawMatcap();
+        DrawOverlay();
         DrawMisc();
 
         SetupKeywords();
@@ -335,13 +356,60 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         EditorGUI.BeginDisabledGroup(matcapMode.floatValue == 0);
         editor.TexturePropertySingleLine(new GUIContent("Matcap Texture"), matcapTexture);
 
-        editor.ShaderProperty(matcapStrength, new GUIContent("Matcap strength"));
+        editor.ShaderProperty(matcapStrength, new GUIContent("Matcap Strength"));
 
         if(matcapMode.floatValue != 0 && matcapStrength.floatValue == 0)
         {
             EditorGUILayout.HelpBox("Matcap strength is zero, consider turning Matcap mode off for performance.", MessageType.Warning);
         }
         EditorGUI.EndDisabledGroup();
+    }
+
+    private void DrawOverlay()
+    {
+        overlayExpanded = Section("Overlay", overlayExpanded);
+        if (!overlayExpanded)
+        {
+            return;
+        }
+
+        editor.ShaderProperty(overlayMode, new GUIContent("Overlay Mode", "Replace will render the overlay directly. Multiply will blend the overlay with the diffuse."));
+
+        editor.RangeProperty(overlayStrength, "Overlay Strength");
+
+        editor.ShaderProperty(panosphereEnabled, new GUIContent("Panosphere Enabled"));
+        EditorGUI.BeginDisabledGroup(panosphereEnabled.floatValue == 0);
+        this.TextureProperty(panoTex, "Panosphere Texture");
+        editor.RangeProperty(panoRotationSpeedX, "Pano Rotation Speed X");
+        editor.RangeProperty(panoRotationSpeedY, "Pano Rotation Speed Y");
+        EditorGUI.EndDisabledGroup();
+
+        editor.ShaderProperty(cubemapEnabled, new GUIContent("Cubemap Enabled"));
+        EditorGUI.BeginDisabledGroup(cubemapEnabled.floatValue == 0);
+        this.TextureProperty(cubemapTex, "Cubemap Texture");
+        editor.VectorProperty(cubemapRotationSpeed, "Cubemap Rotation Speed");
+        EditorGUI.EndDisabledGroup();
+
+        // Add crossfade slider only if both are enabled
+        EditorGUI.BeginDisabledGroup(panosphereEnabled.floatValue == 0 || cubemapEnabled.floatValue == 0);
+        editor.RangeProperty(panoCubeCrossfade, "Panosphere/Cubemap Crossfade");
+        EditorGUI.EndDisabledGroup();
+
+        // Display warning if strength is 0.
+        if(overlayStrength.floatValue == 0 && (panosphereEnabled.floatValue == 1 || cubemapEnabled.floatValue == 1))
+        {
+            EditorGUILayout.HelpBox("Overlay Strength is set to 0. Consider disabling the panosphere and cubemap entirely for performance.", MessageType.Warning);
+        }
+
+        // Display warning if crossfade is either 0 or 1
+        if((panosphereEnabled.floatValue == 1 || cubemapEnabled.floatValue == 1) && panoCubeCrossfade.floatValue == 0)
+        {
+            EditorGUILayout.HelpBox("Cubemap has no influence. Consider disabling the cubemap for performance.", MessageType.Warning);
+        }
+        else if((panosphereEnabled.floatValue == 1 || cubemapEnabled.floatValue == 1) && panoCubeCrossfade.floatValue == 1)
+        {
+            EditorGUILayout.HelpBox("Panosphere has no influence. Consider disabling the panosphere for performance.", MessageType.Warning);
+        }
     }
 
     private void DrawMisc()
@@ -400,6 +468,14 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         {
             EditorGUILayout.HelpBox("Toon Ramp texture wrap mode should be set to Clamp. You may experience horrific lighting artifacts otherwise.", MessageType.Warning);
         }
+    }
+
+    private void TextureProperty(MaterialProperty prop, string label)
+    {
+        editor.SetDefaultGUIWidths();
+        editor.TextureProperty(prop, label);
+        EditorGUIUtility.labelWidth = defaultLabelWidth;
+        EditorGUIUtility.fieldWidth = defaultFieldWidth;
     }
 
     private void FindProperties(MaterialProperty[] props)
@@ -478,6 +554,20 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         matcapTexture = FindProperty("_MatCap", props);
         matcapStrength = FindProperty("_MatCapStrength", props);
 
+        //Overlay stuff
+        overlayMode = FindProperty("_OverlayMode", props);
+        overlayStrength = FindProperty("_OverlayStrength", props);
+        panoCubeCrossfade = FindProperty("_CrossfadeTileCubemap", props);
+
+        panosphereEnabled = FindProperty("_PanoEnabled", props);
+        panoTex = FindProperty("_TileOverlay", props);
+        panoRotationSpeedX = FindProperty("_TileSpeedX", props);
+        panoRotationSpeedY = FindProperty("_TileSpeedY", props);
+
+        cubemapEnabled = FindProperty("_CubemapEnabled", props);
+        cubemapTex = FindProperty("_CubemapOverlay", props);
+        cubemapRotationSpeed = FindProperty("_CubemapRotationSpeed", props);
+
         //Shadow stuff
         receiveShadows = FindProperty("_ReceiveShadows", props);
     }
@@ -512,6 +602,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         return prop.textureValue != null && prop.textureValue.wrapMode != TextureWrapMode.Clamp;
     }
 
+    // So many keywords. Bless Unity 2019 local keywords.
     private void SetupKeywords()
     {
         // Delete all keywords first
@@ -560,6 +651,17 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         else if(matcapMode.floatValue == 2)
         {
             material.EnableKeyword("_MATCAP_MULTIPLY");
+        }
+
+        // Overlay keywords
+        if(panosphereEnabled.floatValue == 1)
+        {
+            material.EnableKeyword("_PANO_ON");
+        }
+
+        if(cubemapEnabled.floatValue == 1)
+        {
+            material.EnableKeyword("_CUBEMAP_ON");
         }
     }
 }
