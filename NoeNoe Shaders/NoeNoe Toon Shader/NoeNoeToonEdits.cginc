@@ -155,7 +155,6 @@ struct VertexOutput {
 	float3 tangentDir : TEXCOORD3;
 	float3 bitangentDir : TEXCOORD4;
 	LIGHTING_COORDS(5,6)
-	float3 viewDir : TEXCOORD7;
 };
 
 VertexOutput vert (VertexInput v) {
@@ -168,7 +167,6 @@ VertexOutput vert (VertexInput v) {
 	float3 lightColor = _LightColor0.rgb;
 	
 	o.pos = UnityObjectToClipPos(v.vertex);
-	o.viewDir = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld, v.vertex).xyz);
 	TRANSFER_VERTEX_TO_FRAGMENT(o)
 	return o;
 }

@@ -25,6 +25,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
         [Toggle(_)] _ScreenSpaceOutline ("Screen-Space Outline", Float ) = 0
 		[Enum(Normal,8,Outer Only,6)] _OutlineStencilComp ("Outline Mode", Float) = 8
 		[Toggle(_)] _OutlineCutout ("Cutout Outlines", Float) = 1
+		[Toggle(_OUTLINE_ALPHA_WIDTH_ON)] _OutlineAlphaWidthEnabled ("Alpha Affects Width", Float) = 1
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
 		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 2
 		[Toggle(_SHADOW_RECEIVE_ON)] _ReceiveShadows ("Receive Shadows", Float) = 0
@@ -154,6 +155,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
 			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
+			#pragma shader_feature_local _OUTLINE_ALPHA_WIDTH_ON
 			
 			#define NOENOETOON_OUTLINE_PASS
 			
@@ -202,10 +204,13 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
 				float3 lightColor = _LightColor0.rgb;
 				
                 float outlineWidth = (_OutlineWidth*0.001);
-				// Scale outline by outline tex alpha
-				float4 outlineTex = tex2Dlod(_OutlineTex, float4(v.texcoord0, 0, 0));
-				outlineTex *= _OutlineColor;
-				outlineWidth *= outlineTex.a;
+				
+				#if defined(_OUTLINE_ALPHA_WIDTH_ON)
+					// Scale outline by outline tex alpha
+					float4 outlineTex = tex2Dlod(_OutlineTex, float4(v.texcoord0, 0, 0));
+					outlineTex *= _OutlineColor;
+					outlineWidth *= outlineTex.a;
+				#endif
 				
                 float OutlineScale = lerp( outlineWidth, (distance(_WorldSpaceCameraPos,mul(unity_ObjectToWorld, v.vertex).rgb)*outlineWidth), _ScreenSpaceOutline);
                 o.pos = UnityObjectToClipPos(float4(v.vertex.xyz + v.normal*OutlineScale,1));

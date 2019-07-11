@@ -56,6 +56,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty outlineScreenspace = null;
     private MaterialProperty outlineStencilComp = null;
     private MaterialProperty outlineCutout = null;
+    private MaterialProperty outlineAlphaAffectsWidth = null;
 
     //Vertex offset stuff
     private MaterialProperty vertexOffset = null;
@@ -251,6 +252,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         editor.FloatProperty(outlineWidth, "Outline Width");
         editor.TexturePropertySingleLine(new GUIContent("Outline Texture", "The main texture (RGBA) and color tint used for the outlines. Alpha determines outline width."), outlineTex, outlineColor);
+        editor.ShaderProperty(outlineAlphaAffectsWidth, new GUIContent("Alpha affects width", "Whether the outline texture's alpha should affect the outline width in that area."));
         editor.ShaderProperty(outlineScreenspace, new GUIContent("Screenspace outlines", "Whether the outlines should be screenspace (always equally large, no matter the distance)"));
         editor.ShaderProperty(outlineStencilComp, new GUIContent("Outline Mode", "Outer Only will only render the outlines on the outer edges of the model."));
         editor.ShaderProperty(outlineCutout, new GUIContent("Cutout Outlines", "Whether the outlines should be subject to cutout."));
@@ -534,6 +536,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         outlineScreenspace = FindProperty("_ScreenSpaceOutline", props, false);
         outlineStencilComp = FindProperty("_OutlineStencilComp", props, false);
         outlineCutout = FindProperty("_OutlineCutout", props, false);
+        outlineAlphaAffectsWidth = FindProperty("_OutlineAlphaWidthEnabled", props, false);
 
         //Vertex offset stuff
         vertexOffset = FindProperty("_VertexOffset", props, false);
@@ -636,7 +639,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             material.EnableKeyword("_SHADOW_RECEIVE_ON");
         }
 
-        // Emission keyword, alpha is ignored.
+        // Emission keyword
+        // Emission is automatically enabled when the emission tint is set to anything other than black. Alpha is ignored for the comparison.
         Color emissionCol = emissionColor.colorValue;
         if (new Color(emissionCol.r, emissionCol.g, emissionCol.b, 1) != Color.black)
         {
@@ -662,6 +666,12 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if(cubemapEnabled.floatValue == 1)
         {
             material.EnableKeyword("_CUBEMAP_ON");
+        }
+
+        // Outline alpha width keyword
+        if(HasOutlines() && outlineAlphaAffectsWidth.floatValue == 1)
+        {
+            material.EnableKeyword("_OUTLINE_ALPHA_WIDTH_ON");
         }
     }
 }
