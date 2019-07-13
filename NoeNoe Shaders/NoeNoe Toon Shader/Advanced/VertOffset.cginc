@@ -1,4 +1,5 @@
 float4 _VertexOffset;
+float4 _WorldVertexOffset;
 float4 _VertexRotation;
 float4 _VertexScale;
 
@@ -50,7 +51,12 @@ VertexOutput vertOffset (VertexInput v) {
 	o.tangentDir = normalize( mul( unity_ObjectToWorld, float4( v.tangent.xyz, 0.0 ) ).xyz );
 	o.bitangentDir = normalize(cross(o.normalDir, o.tangentDir) * v.tangent.w);
 	o.posWorld = mul(unity_ObjectToWorld, v.vertex);
+	// Apply worldspace vertex offset
+	o.posWorld += _WorldVertexOffset;
 	float3 lightColor = _LightColor0.rgb;
+	
+	// Apply worldspace vertex offset back to local position
+	v.vertex = mul(unity_WorldToObject, o.posWorld);
 	
 	o.pos = UnityObjectToClipPos(v.vertex);
 	TRANSFER_VERTEX_TO_FRAGMENT(o)

@@ -60,6 +60,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
     //Vertex offset stuff
     private MaterialProperty vertexOffset = null;
+    private MaterialProperty vertexOffsetWorld = null;
     private MaterialProperty vertexRotation = null;
     private MaterialProperty vertexScale = null;
 
@@ -316,7 +317,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             return;
         }
 
-        editor.VectorProperty(vertexOffset, "Position Offset");
+        editor.VectorProperty(vertexOffsetWorld, "World Position Offset");
+        editor.VectorProperty(vertexOffset, "Local Position Offset");
         editor.VectorProperty(vertexRotation, "Rotation Offset");
         editor.VectorProperty(vertexScale, "Scale");
     }
@@ -540,6 +542,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         //Vertex offset stuff
         vertexOffset = FindProperty("_VertexOffset", props, false);
+        vertexOffsetWorld = FindProperty("_WorldVertexOffset", props, false);
         vertexRotation = FindProperty("_VertexRotation", props, false);
         vertexScale = FindProperty("_VertexScale", props, false);
 

@@ -27,7 +27,8 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
 		[Toggle(_)] _OutlineCutout ("Cutout Outlines", Float) = 1
 		[Toggle(_OUTLINE_ALPHA_WIDTH_ON)] _OutlineAlphaWidthEnabled ("Alpha Affects Width", Float) = 1
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
-		_VertexOffset ("Vertex Offset", Vector) = (0,0,0,0)
+		_VertexOffset ("Local Vertex Offset", Vector) = (0,0,0,0)
+		_WorldVertexOffset ("Worldspace Vertex Offset", Vector) = (0,0,0,0)
 		_VertexRotation ("Local Rotation", Vector) = (0,0,0,0)
 		_VertexScale ("Scale", Vector) = (1,1,1,1)
 		[NoScaleOffset] _RampMaskTex ("Ramp Mask", 2D) = "black"
@@ -234,6 +235,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
 
 				//Apply offset
 				v.vertex += _VertexOffset;
+				
+				// Convert to world space, apply offset, convert back.
+				float4 worldPosition = mul(unity_ObjectToWorld, v.vertex);
+				worldPosition += _WorldVertexOffset;
+				v.vertex = mul(unity_WorldToObject, worldPosition);
 
 				VertexOutput o = (VertexOutput)0;
 				o.uv0 = v.texcoord0;
@@ -366,6 +372,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
 			
             #include "../NoeNoeShadowCaster.cginc"
 			
+			float4 _WorldVertexOffset;
 			float4 _VertexOffset;
 			float4 _VertexRotation;
 			float4 _VertexScale;
@@ -411,6 +418,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
 				
 				//Apply offset
 				v.vertex += _VertexOffset;
+				
+				// Convert to world space, apply offset, convert back.
+				float4 worldPosition = mul(unity_ObjectToWorld, v.vertex);
+				worldPosition += _WorldVertexOffset;
+				v.vertex = mul(unity_WorldToObject, worldPosition);
 
 				VertexOutputShadow o = (VertexOutputShadow)0;
 				o.uv0 = v.texcoord0;				
