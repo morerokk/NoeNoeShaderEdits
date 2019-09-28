@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty normalMap = null;
     private MaterialProperty alphaCutoff = null;
     private MaterialProperty sidedness = null;
+    private MaterialProperty cutoutMode = null;
 
     //Toon lighting
     private MaterialProperty staticToonLight = null;
@@ -123,6 +125,9 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         defaultLabelWidth = EditorGUIUtility.labelWidth;
         defaultFieldWidth = EditorGUIUtility.fieldWidth;
 
+        // Some properties like rendering mode may be out of range when switching from another shader. This fixes that.
+        SetupDefaults();
+
         DrawMain();
         DrawToonLighting();
         if(HasOutlines())
@@ -171,7 +176,30 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         EditorGUILayout.Space();
 
-        editor.RangeProperty(alphaCutoff, "Alpha Cutoff");
+        // Draw cutout selection. Should be a Standard-style dropdown normally, but if the shader is transparent it needs to be a checkbox.
+        if(HasTransparency())
+        {
+            editor.ShaderProperty(cutoutMode, "Cutout");
+        }
+        else
+        {
+            EditorGUI.showMixedValue = cutoutMode.hasMixedValue;
+
+            EditorGUI.BeginChangeCheck();
+            cutoutMode.floatValue = EditorGUILayout.Popup("Render Mode", (int)cutoutMode.floatValue, new string[] { "Opaque", "Cutout" });
+            if (EditorGUI.EndChangeCheck())
+            {
+                editor.RegisterPropertyChangeUndo("Render Mode");
+            }
+
+            EditorGUI.showMixedValue = false;
+        }
+
+        // Only render cutout slider if cutout is enabled
+        if (cutoutMode.floatValue == 1)
+        {
+            editor.RangeProperty(alphaCutoff, "Alpha Cutoff");
+        }
 
         editor.ShaderProperty(sidedness, "Sidedness");
 
@@ -490,6 +518,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         emissionMap = FindProperty("_EmissionMap", props);
         emissionColor = FindProperty("_EmissionColor", props);
         normalMap = FindProperty("_NormalMap", props);
+        cutoutMode = FindProperty("_Mode", props);
         alphaCutoff = FindProperty("_Cutoff", props);
 
         sidedness = FindProperty("_Cull", props, false);
@@ -608,6 +637,18 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         return prop.textureValue != null && prop.textureValue.wrapMode != TextureWrapMode.Clamp;
     }
 
+    /// <summary>
+    /// Fixes invalid material properties.
+    /// </summary>
+    private void SetupDefaults()
+    {
+        // Turn Fade and Transparent rendering modes into Opaque
+        if (this.cutoutMode.floatValue != 0 && this.cutoutMode.floatValue != 1)
+        {
+            this.cutoutMode.floatValue = 0;
+        }
+    }
+
     // So many keywords. Bless Unity 2019 local keywords.
     private void SetupKeywords()
     {
@@ -618,6 +659,12 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if (material.GetTexture("_NormalMap"))
         {
             material.EnableKeyword("_NORMALMAP");
+        }
+
+        // Add cutout keyword if used
+        if (cutoutMode.floatValue == 1)
+        {
+            material.EnableKeyword("_ALPHATEST_ON");
         }
 
         // Add Metallic or Specular keyword if used.

@@ -1,4 +1,4 @@
-Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
+Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
     Properties {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Main texture (RGB)", 2D) = "white" {}
@@ -26,6 +26,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
 		[Enum(Normal,8,Outer Only,6)] _OutlineStencilComp ("Outline Mode", Float) = 8
 		[Toggle(_)] _OutlineCutout ("Cutout Outlines", Float) = 1
 		[Toggle(_OUTLINE_ALPHA_WIDTH_ON)] _OutlineAlphaWidthEnabled ("Alpha Affects Width", Float) = 1
+		[Toggle(_ALPHATEST_ON)] _Mode ("Cutout", Float) = 0
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
 		_VertexOffset ("Local Vertex Offset", Vector) = (0,0,0,0)
 		_WorldVertexOffset ("Worldspace Vertex Offset", Vector) = (0,0,0,0)
@@ -99,8 +100,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
             #pragma multi_compile_fwdbase_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _ _METALLICGLOSSMAP _SPECGLOSSMAP
-			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _ALPHATEST_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+			#pragma shader_feature_local _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION
@@ -172,8 +174,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
             //#pragma multi_compile_fwdbase_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _ _METALLICGLOSSMAP _SPECGLOSSMAP
-			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _ALPHATEST_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+			#pragma shader_feature_local _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION
@@ -295,8 +298,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
             #pragma multi_compile_fwdadd_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _ _METALLICGLOSSMAP _SPECGLOSSMAP
-			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _ALPHATEST_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+			#pragma shader_feature_local _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION
@@ -366,6 +370,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Vertex Offset" {
             #pragma multi_compile_shadowcaster
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
+			#pragma shader_feature_local _ALPHATEST_ON
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
 			
 			float _Cutoff;

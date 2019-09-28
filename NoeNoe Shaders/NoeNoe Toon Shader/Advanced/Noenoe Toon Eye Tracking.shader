@@ -1,4 +1,4 @@
-Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Eye Tracking" {
+Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Eye Tracking" {
     Properties {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Main texture (RGB)", 2D) = "white" {}
@@ -13,6 +13,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Eye Tracking" {
         _Intensity ("Intensity", Range(0, 10)) = 0.8
         _Saturation ("Saturation", Range(0, 1)) = 0.65
         _NormalMap ("Normal Map", 2D) = "bump" {}
+		[Toggle(_ALPHATEST_ON)] _Mode ("Cutout", Float) = 0
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
 		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 0
 		[Enum(None,0,Metallic,1,Specular,2)] _MetallicMode("Metallic Mode", Float) = 0
@@ -72,8 +73,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Eye Tracking" {
             #pragma multi_compile_fwdbase_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _ _METALLICGLOSSMAP _SPECGLOSSMAP
-			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _ALPHATEST_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+			#pragma shader_feature_local _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION
@@ -143,8 +145,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Cutout Eye Tracking" {
             #pragma multi_compile_fwdadd_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _ _METALLICGLOSSMAP _SPECGLOSSMAP
-			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _ALPHATEST_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+			#pragma shader_feature_local _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION

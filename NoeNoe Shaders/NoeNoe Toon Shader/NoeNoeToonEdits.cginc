@@ -209,11 +209,13 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	float4 _MainTex_var = tex2D(mainTexture,TRANSFORM_TEX(i.uv0, mainTexture));
 	float SurfaceAlpha = _MainTex_var.a;
 	
-	#ifdef NOENOETOON_OUTLINE_PASS
-		// Only clip if outline cutout is on
-		clip(SurfaceAlpha - _Cutoff + (1 - _OutlineCutout));
-	#else
-		clip(SurfaceAlpha - _Cutoff);
+	#if defined(_ALPHATEST_ON)
+		#ifdef NOENOETOON_OUTLINE_PASS
+			// Only clip if outline cutout is on
+			clip(SurfaceAlpha - _Cutoff + (1 - _OutlineCutout));
+		#else
+			clip(SurfaceAlpha - _Cutoff);
+		#endif
 	#endif
 	
 	float3 lightColor = _LightColor0.rgb;

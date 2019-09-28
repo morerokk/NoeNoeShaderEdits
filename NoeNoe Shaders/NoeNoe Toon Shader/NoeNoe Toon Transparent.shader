@@ -14,6 +14,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
         _Saturation ("Saturation", Range(0, 1)) = 0.65
         _Opacity ("Opacity", Range(0, 1)) = 1
         _NormalMap ("Normal Map", 2D) = "bump" {}
+		[Toggle(_ALPHATEST_ON)] _Mode ("Cutout", Float) = 0
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.0
 		// Double-sidedness is sometimes wonky with transparency, use with caution.
 		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 2
@@ -72,8 +73,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
             #pragma multi_compile_fwdbase_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _ _METALLICGLOSSMAP _SPECGLOSSMAP
-			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _ALPHATEST_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+			#pragma shader_feature_local _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION
@@ -146,9 +148,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Transparent" {
             #pragma multi_compile_fwdadd_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature _METALLICGLOSSMAP
-			#pragma shader_feature _SPECGLOSSMAP
-			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature_local _ALPHATEST_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+			#pragma shader_feature_local _NORMALMAP
 			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
 			#pragma shader_feature_local _SHADOW_RECEIVE_ON
 			#pragma shader_feature_local _EMISSION
