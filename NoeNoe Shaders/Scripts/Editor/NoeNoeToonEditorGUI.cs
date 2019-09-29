@@ -153,6 +153,21 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         SetupKeywords();
     }
 
+    public override void AssignNewShaderToMaterial(Material material, Shader oldShader, Shader newShader)
+    {
+        // Reset render queue
+        material.renderQueue = -1;
+
+        // Apply the shader change
+        base.AssignNewShaderToMaterial(material, oldShader, newShader);
+
+        // Set queue back to AlphaTest if Cutout is enabled but the new shader is not transparent
+        if(!newShader.name.ToUpperInvariant().Contains("TRANSPARENT") && material.GetFloat("_Mode") == 1)
+        {
+            material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+        }
+    }
+
     private void DrawMain()
     {
         mainExpanded = Section("Main", mainExpanded);
@@ -191,6 +206,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             cutoutMode.floatValue = EditorGUILayout.Popup(new GUIContent("Render Mode", "Whether Alpha Cutout should be enabled."), (int)cutoutMode.floatValue, new string[] { "Opaque", "Cutout" });
             if (EditorGUI.EndChangeCheck())
             {
+                SetupDefaultRenderQueue();
                 editor.RegisterPropertyChangeUndo("Render Mode");
             }
 
@@ -475,6 +491,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         GUILayout.Label("Shadows", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("Enabling receive shadows may cause self-shadowing. This can look good, but if you don't want it, either disable Receive Shadows here, or disable Receive Shadows/Cast Shadows on your mesh renderer.", MessageType.Info);
         editor.ShaderProperty(receiveShadows, "Receive Shadows");
+
+        editor.RenderQueueField();
     }
 
     /// <summary>
@@ -750,6 +768,20 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if(HasOutlines() && outlineScreenspace.floatValue == 1)
         {
             material.EnableKeyword("_OUTLINE_SCREENSPACE");
+        }
+    }
+
+    private void SetupDefaultRenderQueue()
+    {
+        if (!this.HasTransparency() && this.cutoutMode.floatValue == 1)
+        {
+            material.SetOverrideTag("RenderType", "TransparentCutout");
+            material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+        }
+        else
+        {
+            material.renderQueue = -1;
+            material.SetOverrideTag("RenderType", "");
         }
     }
 }

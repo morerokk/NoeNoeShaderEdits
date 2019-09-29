@@ -52,7 +52,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Ramp Masked" {
     }
     SubShader {
         Tags {
-            "RenderType"="TransparentCutout" "Queue"="AlphaTest"
+            "RenderType"="Opaque"
         }
         Pass {
             Name "FORWARD"

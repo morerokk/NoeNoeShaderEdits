@@ -47,7 +47,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Outline" {
         _CrossfadeTileCubemap ("Crossfade Pano / Cubemap", Range(0, 1)) = 0.5
     }
     SubShader {
-        Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest" }
+        Tags { "RenderType"="Opaque" }
 		
         Pass {
             Name "FORWARD"
