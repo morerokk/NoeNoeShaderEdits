@@ -22,7 +22,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
         _OutlineWidth ("Outline Width", Float ) = 0
         _OutlineColor ("Outline Tint", Color) = (0,0,0,1)
 		_OutlineTex ("Outline Texture", 2D) = "white" {}
-        [Toggle(_)] _ScreenSpaceOutline ("Screen-Space Outline", Float ) = 0
+        [Toggle(_OUTLINE_SCREENSPACE)] _ScreenSpaceOutline ("Screen-Space Outline", Float ) = 0
+		_ScreenSpaceMinDist ("Minimum Outline Distance", Float ) = 0
+		_ScreenSpaceMaxDist ("Maximum Outline Distance", Float ) = 100
 		[Enum(Normal,8,Outer Only,6)] _OutlineStencilComp ("Outline Mode", Float) = 8
 		[Toggle(_)] _OutlineCutout ("Cutout Outlines", Float) = 1
 		[Toggle(_OUTLINE_ALPHA_WIDTH_ON)] _OutlineAlphaWidthEnabled ("Alpha Affects Width", Float) = 1
@@ -184,6 +186,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
 			#pragma shader_feature_local _OUTLINE_ALPHA_WIDTH_ON
+			#pragma shader_feature_local _OUTLINE_SCREENSPACE
 			
 			#define NOENOETOON_OUTLINE_PASS
 			
@@ -208,6 +211,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 			
 			float _OutlineCutout;
 			float _Cutoff;
+			
+			float _ScreenSpaceMinDist;
+			float _ScreenSpaceMaxDist;
 			
 			float _OverrideWorldLight;
             
@@ -261,7 +267,13 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 					outlineWidth *= outlineTex.a;
 				#endif
 				
-                float OutlineScale = lerp( outlineWidth, (distance(_WorldSpaceCameraPos,mul(unity_ObjectToWorld, v.vertex).rgb)*outlineWidth), _ScreenSpaceOutline);
+				#if defined(_OUTLINE_SCREENSPACE)
+					float dist = clamp(distance(_WorldSpaceCameraPos,mul(unity_ObjectToWorld, v.vertex).rgb), _ScreenSpaceMinDist, _ScreenSpaceMaxDist);
+					float OutlineScale = dist * outlineWidth;
+				#else
+					float OutlineScale = outlineWidth;
+				#endif
+                
                 o.pos = UnityObjectToClipPos(float4(v.vertex.xyz + v.normal*OutlineScale,1));
 				o.posWorld = mul(unity_ObjectToWorld, float4(v.vertex.xyz + v.normal*OutlineScale,1));
 				TRANSFER_VERTEX_TO_FRAGMENT(o)

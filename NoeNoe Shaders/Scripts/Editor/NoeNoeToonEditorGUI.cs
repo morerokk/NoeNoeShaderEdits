@@ -59,6 +59,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty outlineStencilComp = null;
     private MaterialProperty outlineCutout = null;
     private MaterialProperty outlineAlphaAffectsWidth = null;
+    private MaterialProperty outlineScreenspaceMinDistance = null;
+    private MaterialProperty outlineScreenspaceMaxDistance = null;
 
     //Vertex offset stuff
     private MaterialProperty vertexOffset = null;
@@ -179,14 +181,14 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         // Draw cutout selection. Should be a Standard-style dropdown normally, but if the shader is transparent it needs to be a checkbox.
         if(HasTransparency())
         {
-            editor.ShaderProperty(cutoutMode, "Cutout");
+            editor.ShaderProperty(cutoutMode, new GUIContent("Cutout", "Whether Alpha Cutout should be enabled."));
         }
         else
         {
             EditorGUI.showMixedValue = cutoutMode.hasMixedValue;
 
             EditorGUI.BeginChangeCheck();
-            cutoutMode.floatValue = EditorGUILayout.Popup("Render Mode", (int)cutoutMode.floatValue, new string[] { "Opaque", "Cutout" });
+            cutoutMode.floatValue = EditorGUILayout.Popup(new GUIContent("Render Mode", "Whether Alpha Cutout should be enabled."), (int)cutoutMode.floatValue, new string[] { "Opaque", "Cutout" });
             if (EditorGUI.EndChangeCheck())
             {
                 editor.RegisterPropertyChangeUndo("Render Mode");
@@ -283,6 +285,24 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         editor.TexturePropertySingleLine(new GUIContent("Outline Texture", "The main texture (RGBA) and color tint used for the outlines. Alpha determines outline width."), outlineTex, outlineColor);
         editor.ShaderProperty(outlineAlphaAffectsWidth, new GUIContent("Alpha affects width", "Whether the outline texture's alpha should affect the outline width in that area."));
         editor.ShaderProperty(outlineScreenspace, new GUIContent("Screenspace outlines", "Whether the outlines should be screenspace (always equally large, no matter the distance)"));
+
+        if (outlineScreenspace.floatValue == 1)
+        {
+            // Draw multi-slider for min/max distance
+            float minDist = outlineScreenspaceMinDistance.floatValue;
+            float maxDist = outlineScreenspaceMaxDistance.floatValue;
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.MinMaxSlider("Size Limits (Min / Max)", ref minDist, ref maxDist, 0f, 10f);
+            if (EditorGUI.EndChangeCheck())
+            {
+                outlineScreenspaceMinDistance.floatValue = minDist;
+                outlineScreenspaceMaxDistance.floatValue = maxDist;
+            }
+
+            editor.FloatProperty(outlineScreenspaceMinDistance, "Min Size");
+            editor.FloatProperty(outlineScreenspaceMaxDistance, "Max Size");
+        }
+
         editor.ShaderProperty(outlineStencilComp, new GUIContent("Outline Mode", "Outer Only will only render the outlines on the outer edges of the model."));
         editor.ShaderProperty(outlineCutout, new GUIContent("Cutout Outlines", "Whether the outlines should be subject to cutout."));
 
@@ -568,6 +588,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         outlineStencilComp = FindProperty("_OutlineStencilComp", props, false);
         outlineCutout = FindProperty("_OutlineCutout", props, false);
         outlineAlphaAffectsWidth = FindProperty("_OutlineAlphaWidthEnabled", props, false);
+        outlineScreenspaceMinDistance = FindProperty("_ScreenSpaceMinDist", props, false);
+        outlineScreenspaceMaxDistance = FindProperty("_ScreenSpaceMaxDist", props, false);
 
         //Vertex offset stuff
         vertexOffset = FindProperty("_VertexOffset", props, false);
@@ -722,6 +744,12 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if(HasOutlines() && outlineAlphaAffectsWidth.floatValue == 1)
         {
             material.EnableKeyword("_OUTLINE_ALPHA_WIDTH_ON");
+        }
+
+        // Screenspace outline keyword
+        if(HasOutlines() && outlineScreenspace.floatValue == 1)
+        {
+            material.EnableKeyword("_OUTLINE_SCREENSPACE");
         }
     }
 }
