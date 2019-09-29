@@ -155,8 +155,9 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
     public override void AssignNewShaderToMaterial(Material material, Shader oldShader, Shader newShader)
     {
-        // Reset render queue
+        // Reset render queue and rendertype
         material.renderQueue = -1;
+        material.SetOverrideTag("RenderType", "");
 
         // Apply the shader change
         base.AssignNewShaderToMaterial(material, oldShader, newShader);
@@ -165,6 +166,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if(!newShader.name.ToUpperInvariant().Contains("TRANSPARENT") && material.GetFloat("_Mode") == 1)
         {
             material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+            material.SetOverrideTag("RenderType", "TransparentCutout");
         }
     }
 
