@@ -55,6 +55,14 @@ float _Glossiness;
 	#endif
 #endif
 
+#if defined(_RIMLIGHT_ON)
+	sampler2D _RimTex;
+	float4 _RimLightColor;
+	float _RimLightMode;
+	float _RimWidth;
+	float _RimInvert;
+#endif
+
 float3 GIsonarDirection()
 {
     float3 GIsonar_dir_vec = (unity_SHAr.xyz*unity_SHAr.w + unity_SHAg.xyz*unity_SHAg.w + unity_SHAb.xyz*unity_SHAb.w);
@@ -269,6 +277,22 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		#endif
 		
 		Diffuse = lerp(Diffuse, matcapResult, _MatCapStrength);
+	#endif
+	
+	// Rimlight
+	#if defined(_RIMLIGHT_ON)
+		float rim = 1.0 - saturate(dot(normalize(viewDirection), normalDirection));
+		if(_RimInvert == 1)
+		{
+			rim = 1 - rim;
+		}
+		
+		float4 rimTex = tex2D(_RimTex, TRANSFORM_TEX(i.uv0, mainTexture));
+		rimTex *= _RimLightColor;
+		
+		float3 rimColor = rimTex.rgb * smoothstep(1 - _RimWidth, 1.0, rim);
+		
+		Diffuse += (rimColor * rimTex.a);
 	#endif
 	
 	// Overlay

@@ -42,6 +42,12 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Eye Tracking" {
         _CubemapOverlay ("Cubemap Texture", Cube) = "_Skybox" {}
         _CubemapRotationSpeed ("Cubemap Rotation Speed", Vector) = (0,0,0,0)
         _CrossfadeTileCubemap ("Crossfade Pano / Cubemap", Range(0, 1)) = 0.5
+		
+		[Toggle(_)] _RimLightMode ("Rimlight Enabled", Float) = 0
+		_RimLightColor ("Rimlight Tint", Color) = (1,1,1,0.4)
+		_RimTex ("Rimlight Texture", 2D) = "white" {}
+		_RimWidth ("Rimlight Width", Range(0,1)) = 0.75
+		[Toggle(_)] _RimInvert ("Invert Rimlight", Float) = 0
     }
     SubShader {
         Tags {
@@ -82,6 +88,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Eye Tracking" {
 			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
+			#pragma shader_feature_local _RIMLIGHT_ON
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
@@ -154,6 +161,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Eye Tracking" {
 			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
+			#pragma shader_feature_local _RIMLIGHT_ON
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;

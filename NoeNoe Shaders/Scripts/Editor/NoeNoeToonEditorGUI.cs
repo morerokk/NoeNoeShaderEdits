@@ -96,6 +96,13 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty cubemapTex = null;
     private MaterialProperty cubemapRotationSpeed = null;
 
+    //Rimlight
+    private MaterialProperty rimlightMode = null;
+    private MaterialProperty rimColorTint = null;
+    private MaterialProperty rimTexture = null;
+    private MaterialProperty rimWidth = null;
+    private MaterialProperty rimInvert = null;
+
     //Shadows
     private MaterialProperty receiveShadows = null;
 
@@ -103,6 +110,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
     private Material material;
 
+    // Keeps track of which sections are opened and closed.
     private bool mainExpanded = true;
     private bool toonExpanded = true;
     private bool outlinesExpanded = false;
@@ -110,6 +118,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private bool vertexOffsetExpanded = false;
     private bool eyeTrackingExpanded = false;
     private bool matcapExpanded = false;
+    private bool rimlightExpanded = false;
     private bool overlayExpanded = false;
     private bool miscExpanded = false;
 
@@ -147,6 +156,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         }
 
         DrawMatcap();
+        DrawRimlight();
         DrawOverlay();
         DrawMisc();
 
@@ -371,7 +381,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
     private void DrawSpecularWorkflow()
     {
-        editor.TexturePropertyWithHDRColor(new GUIContent("Specular Map", "Defines Specular color (RGB) and Smoothness (A). Lower smoothness blurs reflections."), specularMap, specularColor, false);
+        editor.TexturePropertyWithHDRColor(new GUIContent("Specular Map", "Defines Specular color (RGB) and Smoothness (A). Lower smoothness blurs reflections."), specularMap, specularColor, true);
         editor.RangeProperty(smoothness, "Smoothness");
     }
 
@@ -432,6 +442,30 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         {
             EditorGUILayout.HelpBox("Matcap strength is zero, consider turning Matcap mode off for performance.", MessageType.Warning);
         }
+        EditorGUI.EndDisabledGroup();
+    }
+
+    private void DrawRimlight()
+    {
+        rimlightExpanded = Section("Rimlight", rimlightExpanded);
+        if(!rimlightExpanded)
+        {
+            return;
+        }
+
+        editor.ShaderProperty(rimlightMode, new GUIContent("Rimlight Enabled"));
+        EditorGUI.BeginDisabledGroup(rimlightMode.floatValue == 0);
+
+        editor.TexturePropertySingleLine(new GUIContent("Rimlight Texture", "The rimlight texture. RGB controls color, Alpha controls strength."), rimTexture, rimColorTint);
+        editor.RangeProperty(rimWidth, "Rimlight Width");
+
+        editor.ShaderProperty(rimInvert, new GUIContent("Invert Rimlight"));
+
+        if(rimlightMode.floatValue != 0 && (rimColorTint.colorValue.a == 0 || rimWidth.floatValue == 0))
+        {
+            EditorGUILayout.HelpBox("Rimlight alpha or width is set to 0. Consider turning rimlights off for performance.", MessageType.Warning);
+        }
+
         EditorGUI.EndDisabledGroup();
     }
 
@@ -645,6 +679,13 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         cubemapTex = FindProperty("_CubemapOverlay", props);
         cubemapRotationSpeed = FindProperty("_CubemapRotationSpeed", props);
 
+        //Rimlight stuff
+        rimlightMode = FindProperty("_RimLightMode", props);
+        rimColorTint = FindProperty("_RimLightColor", props);
+        rimTexture = FindProperty("_RimTex", props);
+        rimWidth = FindProperty("_RimWidth", props);
+        rimInvert = FindProperty("_RimInvert", props);
+
         //Shadow stuff
         receiveShadows = FindProperty("_ReceiveShadows", props);
     }
@@ -771,14 +812,23 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         {
             material.EnableKeyword("_OUTLINE_SCREENSPACE");
         }
+
+        // Rimlight keyword
+        if(rimlightMode.floatValue != 0)
+        {
+            material.EnableKeyword("_RIMLIGHT_ON");
+        }
     }
 
+    /// <summary>
+    /// Set up the right default render queue and associated rendertype for the shader. 2000 for opaque, 2450 for cutout, 3000 for transparent.
+    /// </summary>
     private void SetupDefaultRenderQueue()
     {
         if (!this.HasTransparency() && this.cutoutMode.floatValue == 1)
         {
-            material.SetOverrideTag("RenderType", "TransparentCutout");
             material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+            material.SetOverrideTag("RenderType", "TransparentCutout");
         }
         else
         {

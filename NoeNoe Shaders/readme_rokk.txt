@@ -10,6 +10,7 @@ This pack features a bunch of edits of Noenoe shaders. All edits have been done 
 - Added option for receiving shadows. This includes self-shadowing. This doesn't always look good, so it is off by default. If desired, you can also turn off Cast Shadows on the mesh renderer instead, allowing you to still receive shadows properly.
 - Added additive and multiplicative matcap support
 - Added and improved overlay support to the toon shaders. This effectively makes the "Lit Overlay" family of shaders a legacy thing, and may be removed in the future.
+- Added rimlight options. Try using subtle rimlights on skin! RGB controls color, A controls strength.
 
 Large improvements to the outline shader:
 - Added an "outer only" outline mode. In this mode, outlines will not be rendered over the model, only on the outer edges. Good for avoiding artifacts and for stylistic effect.

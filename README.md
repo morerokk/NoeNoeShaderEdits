@@ -2,6 +2,8 @@
 
 This is an edit of [NoeNoe Shaders, originally made by Noe.](https://vrcat.club/threads/updated-29-5-18-noenoe-shaders.157/) All the edits have been made to the "toon" variants, the other variants are untouched.
 
+**These shaders are meant for Unity 2019. [The latest Unity 2017/2018 release can be found here.](https://github.com/HugoZink/NoeNoeShaderEdits/releases/tag/1.4.1)**
+
 # Feature Overview
 
 Quick list of changes:
@@ -17,6 +19,7 @@ Quick list of changes:
 * Added additive and multiplicative matcap support to each shader
 * Added local shader keywords to improve performance a bit
 * Added the panosphere/cubemap overlay features to the toon shaders and improved them a bit
+* Added rimlight features. Try using them on skin! Supports rimlight texture. RGB is color, A is strength.
 
 The self-shadowing is not always desirable, which is why the option is off by default. If desired, you can also turn off Cast Shadows on the mesh renderer instead, allowing you to still receive shadows properly.
 
