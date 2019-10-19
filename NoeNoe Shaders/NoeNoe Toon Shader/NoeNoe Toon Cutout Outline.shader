@@ -49,7 +49,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #define UNITY_PASS_FORWARDBASE
+
+			#ifndef UNITY_PASS_FORWARDBASE
+				#define UNITY_PASS_FORWARDBASE
+			#endif
+
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -203,7 +207,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #define UNITY_PASS_FORWARDADD
+
+			#ifndef UNITY_PASS_FORWARDADD
+				#define UNITY_PASS_FORWARDADD
+			#endif
+
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -262,7 +270,11 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Cutout Outline" {
             CGPROGRAM
             #pragma vertex vertShadow
             #pragma fragment fragShadow
-            #define UNITY_PASS_SHADOWCASTER
+
+			#ifndef UNITY_PASS_SHADOWCASTER
+				#define UNITY_PASS_SHADOWCASTER
+			#endif
+
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "Lighting.cginc"

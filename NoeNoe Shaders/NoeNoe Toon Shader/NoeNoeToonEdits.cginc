@@ -85,7 +85,6 @@ struct VertexOutput {
 	float3 tangentDir : TEXCOORD3;
 	float3 bitangentDir : TEXCOORD4;
 	LIGHTING_COORDS(5,6)
-	float3 viewDir : TEXCOORD7;
 };
 
 VertexOutput vert (VertexInput v) {
@@ -98,7 +97,6 @@ VertexOutput vert (VertexInput v) {
 	float3 lightColor = _LightColor0.rgb;
 	
 	o.pos = UnityObjectToClipPos(v.vertex);
-	o.viewDir = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld, v.vertex).xyz);
 	TRANSFER_VERTEX_TO_FRAGMENT(o)
 	return o;
 }
@@ -200,7 +198,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 			float roughness = 1 - (metallicTex.a * _Glossiness);
 			roughness *= 1.7 - 0.7 * roughness;
 			
-			float3 reflectedDir = reflect(-i.viewDir, normalize(i.normalDir));
+			float3 reflectedDir = reflect(-viewDirection, normalize(normalDirection));
 			
 			float3 reflectionColor;
 			
@@ -241,7 +239,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 			float roughness = 1 - (specularTex.a * _Glossiness);
 			roughness *= 1.7 - 0.7 * roughness;
 			
-			float3 reflectedDir = reflect(-i.viewDir, normalize(i.normalDir));
+			float3 reflectedDir = reflect(-viewDirection, normalize(normalDirection));
 			float3 reflectionColor;
 			
 			//Sample second probe if available.

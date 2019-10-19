@@ -155,7 +155,6 @@ VertexOutput vertEyeTracking (VertexInput v) {
 	
 	o.pos = mul(UNITY_MATRIX_VP, mul(matrix_M_noRot, newPos));
 	
-	o.viewDir = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld, v.vertex).xyz);
 	TRANSFER_VERTEX_TO_FRAGMENT(o)
 	return o;
 }
