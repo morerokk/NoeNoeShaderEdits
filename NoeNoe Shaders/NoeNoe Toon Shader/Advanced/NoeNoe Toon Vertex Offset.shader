@@ -12,6 +12,8 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
         [HDR] _EmissionColor ("Emission", Color) = (0,0,0,1)
         _Intensity ("Intensity", Range(0, 10)) = 0.8
         _Saturation ("Saturation", Range(0, 1)) = 0.65
+		_Exposure ("Exposure", Range(0, 1)) = 0.6
+		[Enum(Toon,0,PBR,1,Legacy Toon,2)] _LightingMode ("Lighting Mode", Float) = 0
         _NormalMap ("Normal Map", 2D) = "bump" {}
 		[Enum(None,0,Metallic,1,Specular,2)] _MetallicMode("Metallic Mode", Float) = 0
 		[NoScaleOffset] _MetallicGlossMap("Metallic Map", 2D) = "white" {}
@@ -118,6 +120,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
 			#pragma shader_feature_local _RIMLIGHT_ON
+			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 			
 			#define NOENOETOON_RAMP_MASKING
 			
@@ -195,6 +198,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 			#pragma shader_feature_local _OUTLINE_ALPHA_WIDTH_ON
 			#pragma shader_feature_local _OUTLINE_SCREENSPACE
 			#pragma shader_feature_local _RIMLIGHT_ON
+			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 			
 			#define NOENOETOON_OUTLINE_PASS
 			
@@ -328,6 +332,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
 			#pragma shader_feature_local _RIMLIGHT_ON
+			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 			
 			#define NOENOETOON_RAMP_MASKING
 			

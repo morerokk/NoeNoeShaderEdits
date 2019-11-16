@@ -12,6 +12,8 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Ramp Masked" {
         _EmissionColor ("Emission", Color) = (0,0,0)
         _Intensity ("Default Intensity", Range(0, 10)) = 0.8
         _Saturation ("Default Saturation", Range(0, 1)) = 0.65
+		_Exposure ("Exposure", Range(0, 1)) = 0.6
+		[Enum(Toon,0,PBR,1,Legacy Toon,2)] _LightingMode ("Lighting Mode", Float) = 0
         _NormalMap ("Normal Map", 2D) = "bump" {}
 		[Toggle(_ALPHATEST_ON)] _Mode ("Cutout", Float) = 0
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
@@ -94,6 +96,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Ramp Masked" {
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
 			#pragma shader_feature_local _RIMLIGHT_ON
+			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
@@ -167,6 +170,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Ramp Masked" {
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
 			#pragma shader_feature_local _RIMLIGHT_ON
+			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;

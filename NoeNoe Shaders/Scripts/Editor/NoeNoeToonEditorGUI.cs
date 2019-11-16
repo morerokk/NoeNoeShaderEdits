@@ -23,6 +23,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty toonContrast = null;
     private MaterialProperty intensity = null;
     private MaterialProperty saturation = null;
+    private MaterialProperty exposure = null;
+    private MaterialProperty lightMode = null;
 
     //Metallic
     private MaterialProperty metallicMode = null;
@@ -264,6 +266,13 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         editor.RangeProperty(toonContrast, "Toon Contrast");
         editor.RangeProperty(intensity, "Intensity");
         editor.RangeProperty(saturation, "Saturation");
+
+        editor.ShaderProperty(lightMode, new GUIContent("Lighting Mode", "The light mode to use. Legacy Toon is like older versions, will clamp overbright lighting and mostly ignore light color. PBR makes the normals matter more in light calculations."));
+
+        if(lightMode.floatValue != 2)
+        {
+            editor.ShaderProperty(exposure, new GUIContent("Exposure", "Controls the contribution of directional and realtime lights."));
+        }
 
         if(HasRampMasking())
         {
@@ -606,6 +615,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         toonContrast = FindProperty("_ToonContrast", props);
         intensity = FindProperty("_Intensity", props);
         saturation = FindProperty("_Saturation", props);
+        exposure = FindProperty("_Exposure", props);
+        lightMode = FindProperty("_LightingMode", props);
 
         //Metallic
         metallicMode = FindProperty("_MetallicMode", props);
@@ -817,6 +828,16 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if(rimlightMode.floatValue != 0)
         {
             material.EnableKeyword("_RIMLIGHT_ON");
+        }
+
+        // Lighting mode
+        if(lightMode.floatValue == 1)
+        {
+            material.EnableKeyword("_LIGHTING_PBR_ON");
+        }
+        else if(lightMode.floatValue == 2)
+        {
+            material.EnableKeyword("_LIGHTING_LEGACY_ON");
         }
     }
 

@@ -1,11 +1,11 @@
 This pack features a bunch of edits of Noenoe shaders. All edits have been done to the "Toon" subsection. The Overlay shaders (including PBR) are unchanged.
 
 - All shaders can now use the world's directional light direction. The Static Toon Light direction will be used as a "fallback" if there is no meaningful light direction. You can still force your own light direction if you wish.
+- Improved lighting model that better supports HDR and supports colored lights, but stays true to the original Noenoe look (the legacy lighting mode is still available)
 - Completely overhauled editor GUI
 - Every shader now has optional Metallic and Specular support
 - Every shader now has an alpha cutoff slider, even Transparent
 - Every shader now has a sidedness selection (front sided, back sided, double-sided)
-- Renamed Opaque to Cutout to be more compatible with the shader fallback system
 - Added "Vertex Offset" shader under Overlay/Misc. This shader features properties like Position, Rotation and Scale within the shader. Can be animated. Great for niche uses that would otherwise break the IK, such as up/down floating animations, upside-down models, or scaling.
 - Added option for receiving shadows. This includes self-shadowing. This doesn't always look good, so it is off by default. If desired, you can also turn off Cast Shadows on the mesh renderer instead, allowing you to still receive shadows properly.
 - Added additive and multiplicative matcap support

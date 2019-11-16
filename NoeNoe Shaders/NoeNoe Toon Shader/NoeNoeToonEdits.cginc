@@ -1,6 +1,7 @@
 float _WorldLightIntensity;
 float _ReceiveShadows;
 float3 _EmissionColor;
+float _Exposure;
 
 #ifdef NOENOETOON_RAMP_MASKING
 	uniform sampler2D _RampMaskTex;
@@ -236,7 +237,14 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		float attenuation = LIGHT_ATTENUATION(i) / SHADOW_ATTENUATION(i);
 	#endif
 	
-	float3 FlatLighting = saturate((FlatLightSH( float3(0,1,0) )+(_LightColor0.rgb*attenuation)));
+	#if defined(_LIGHTING_PBR_ON)
+		float3 FlatLighting = FlatLightSH(normalDirection) + (_LightColor0.rgb * attenuation * _Exposure);
+	#elif defined(_LIGHTING_LEGACY_ON)
+		float3 FlatLighting = saturate(FlatLightSH(float3(0,1,0))+(_LightColor0.rgb*attenuation));
+	#else
+		float3 FlatLighting = FlatLightSH(float3(0,0,0)) + (_LightColor0.rgb * attenuation * _Exposure);
+	#endif
+	
 	float3 MappedTexture = (_MainTex_var.rgb*mainColor.rgb);
 	
 	#ifdef NOENOETOON_RAMP_MASKING
@@ -454,7 +462,11 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	#endif
 	
 	float3 StaticToonLighting = node_9498.rgb;
-	float3 finalColor = saturate(((IntensityVar*FlatLighting*Diffuse) > 0.5 ?  (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) );
+	float3 finalColor = ((IntensityVar*FlatLighting*Diffuse) > 0.5 ?  (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var)));
+	
+	#if defined(_LIGHTING_LEGACY_ON)
+		finalColor = saturate(finalColor);
+	#endif
 	
 	#if defined(_METALLICGLOSSMAP) || defined(_SPECGLOSSMAP)
 		// Apply unlit reflections
