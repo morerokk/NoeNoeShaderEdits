@@ -28,8 +28,7 @@ float _Metallic;
 float _Glossiness;
 
 #ifdef _SPECGLOSSMAP
-	// Why is this already in use?
-	//float4 _SpecColor;
+	// float4 _SpecColor is already defined somewhere
 	sampler2D _SpecGlossMap;
 #endif
 
@@ -56,7 +55,7 @@ float _Glossiness;
 	#endif
 #endif
 
-#if defined(_RIMLIGHT_ON)
+#if defined(_RIMLIGHT_ADD) || defined(_RIMLIGHT_MIX)
 	sampler2D _RimTex;
 	float4 _RimLightColor;
 	float _RimLightMode;
@@ -104,7 +103,7 @@ float4 lightDirection(float4 fallback)
 
 float3 FlatLightSH(float3 normal)
 {
-	return ShadeSH9(half4(normal, 1.0));
+	return ShadeSH9(float4(normal, 1.0));
 }
 
 half2 matcapSample(half3 worldUp, half3 viewDirection, half3 normalDirection)
@@ -238,10 +237,13 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	#endif
 	
 	#if defined(_LIGHTING_PBR_ON)
+		// Somewhat incorrect "PBR"-ish lighting, use normals to sample SH
 		float3 FlatLighting = FlatLightSH(normalDirection) + (_LightColor0.rgb * attenuation * _Exposure);
 	#elif defined(_LIGHTING_LEGACY_ON)
+		// Old lighting, sample SH from upwards, add LightColor0, clamp to 0-1
 		float3 FlatLighting = saturate(FlatLightSH(float3(0,1,0))+(_LightColor0.rgb*attenuation));
 	#else
+		// Regular toon lighting, sample ambient SH, add LightColor0 to a lesser extent
 		float3 FlatLighting = FlatLightSH(float3(0,0,0)) + (_LightColor0.rgb * attenuation * _Exposure);
 	#endif
 	
@@ -288,7 +290,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	#endif
 	
 	// Rimlight
-	#if defined(_RIMLIGHT_ON)
+	#if defined(_RIMLIGHT_ADD) || defined(_RIMLIGHT_MIX)
 		float rim = 1.0 - saturate(dot(normalize(viewDirection), normalDirection));
 		if(_RimInvert == 1)
 		{
@@ -300,7 +302,11 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 		
 		float3 rimColor = rimTex.rgb * smoothstep(1 - _RimWidth, 1.0, rim);
 		
-		Diffuse += (rimColor * rimTex.a);
+		#if defined(_RIMLIGHT_ADD)
+			Diffuse += (rimColor * rimTex.a);
+		#else	
+			Diffuse = lerp(Diffuse, rimColor, rim * rimTex.a);
+		#endif
 	#endif
 	
 	// Overlay

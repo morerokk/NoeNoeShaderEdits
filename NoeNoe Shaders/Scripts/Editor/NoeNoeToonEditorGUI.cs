@@ -462,7 +462,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             return;
         }
 
-        editor.ShaderProperty(rimlightMode, new GUIContent("Rimlight Enabled"));
+        editor.ShaderProperty(rimlightMode, new GUIContent("Rimlight Mode"));
         EditorGUI.BeginDisabledGroup(rimlightMode.floatValue == 0);
 
         editor.TexturePropertySingleLine(new GUIContent("Rimlight Texture", "The rimlight texture. RGB controls color, Alpha controls strength."), rimTexture, rimColorTint);
@@ -470,9 +470,14 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         editor.ShaderProperty(rimInvert, new GUIContent("Invert Rimlight"));
 
-        if(rimlightMode.floatValue != 0 && (rimColorTint.colorValue.a == 0 || rimWidth.floatValue == 0))
+        if(rimlightMode.floatValue != 0 && rimColorTint.colorValue.a == 0)
         {
-            EditorGUILayout.HelpBox("Rimlight alpha or width is set to 0. Consider turning rimlights off for performance.", MessageType.Warning);
+            EditorGUILayout.HelpBox("Rimlight alpha is set to 0. Consider turning rimlights off for performance.", MessageType.Warning);
+        }
+
+        if(rimlightMode.floatValue == 1 && rimWidth.floatValue == 0)
+        {
+            EditorGUILayout.HelpBox("Rimlight is additive but width is set to 0. Consider turning rimlights off for performance.", MessageType.Warning);
         }
 
         EditorGUI.EndDisabledGroup();
@@ -546,6 +551,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     /// <returns>A boolean indicating whether the section is currently open or not.</returns>
     private bool Section(string title, bool expanded)
     {
+        // Define style for section, reuse the one from particle systems
         var style = new GUIStyle("ShurikenModuleTitle")
         {
             font = new GUIStyle(EditorStyles.label).font,
@@ -565,6 +571,8 @@ public class NoeNoeToonEditorGUI : ShaderGUI
             EditorStyles.foldout.Draw(toggleRect, false, false, expanded, false);
         }
 
+        // Check if the user has clicked on the header.
+        // If clicked, expand or collapse the header.
         if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
         {
             expanded = !expanded;
@@ -574,6 +582,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         return expanded;
     }
 
+    /// <summary>
+    /// Draws a texture property specifically meant for Toon Ramps. Can warn the user if the toon ramp texture is not set to Clamp.
+    /// </summary>
+    /// <param name="guiContent">A GUIContent object to use for the label.</param>
+    /// <param name="rampProperty">The material property to make the texture for. Has to be a texture.</param>
     private void ToonRampProperty(GUIContent guiContent, MaterialProperty rampProperty)
     {
         editor.TexturePropertySingleLine(guiContent, rampProperty);
@@ -585,6 +598,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         }
     }
 
+    /// <summary>
+    /// Draws a full-size texture property, but without squishing the preview.
+    /// </summary>
+    /// <param name="prop">The texture property to draw.</param>
+    /// <param name="label">The label to give the texture property.</param>
     private void TextureProperty(MaterialProperty prop, string label)
     {
         editor.SetDefaultGUIWidths();
@@ -593,6 +611,10 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         EditorGUIUtility.fieldWidth = defaultFieldWidth;
     }
 
+    /// <summary>
+    /// Obtain all properties from the material, and bind them to the fields in this object.
+    /// </summary>
+    /// <param name="props">A list of properties obtained from the material.</param>
     private void FindProperties(MaterialProperty[] props)
     {
         //Main stuff
@@ -701,6 +723,9 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         receiveShadows = FindProperty("_ReceiveShadows", props);
     }
 
+    // The below functions can report if the current shader supports X feature or not, by looking at whether the property was found.
+    // This allows the same editor to be used for all shaders.
+
     private bool HasRampMasking()
     {
         return rampMaskTex != null;
@@ -732,7 +757,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     }
 
     /// <summary>
-    /// Fixes invalid material properties.
+    /// Fixes invalid cutout mode after switching from Standard Fade/Transparent to this shader.
     /// </summary>
     private void SetupDefaults()
     {
@@ -743,7 +768,10 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         }
     }
 
-    // So many keywords. Bless Unity 2019 local keywords.
+    /// <summary>
+    /// Remove all keywords from the material and sets up any new ones if necessary.
+    /// Note: keywords should be local whenever possible.
+    /// </summary>
     private void SetupKeywords()
     {
         // Delete all keywords first
@@ -825,13 +853,17 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         }
 
         // Rimlight keyword
-        if(rimlightMode.floatValue != 0)
+        if(rimlightMode.floatValue == 1)
         {
-            material.EnableKeyword("_RIMLIGHT_ON");
+            material.EnableKeyword("_RIMLIGHT_ADD");
+        }
+        else if(rimlightMode.floatValue == 2)
+        {
+            material.EnableKeyword("_RIMLIGHT_MIX");
         }
 
         // Lighting mode
-        if(lightMode.floatValue == 1)
+        if (lightMode.floatValue == 1)
         {
             material.EnableKeyword("_LIGHTING_PBR_ON");
         }

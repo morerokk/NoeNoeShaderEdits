@@ -68,7 +68,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
         _CubemapRotationSpeed ("Cubemap Rotation Speed", Vector) = (0,0,0,0)
         _CrossfadeTileCubemap ("Crossfade Pano / Cubemap", Range(0, 1)) = 0.5
 		
-		[Toggle(_)] _RimLightMode ("Rimlight Enabled", Float) = 0
+		[Enum(Off,0,Add,1,Mix,2)] _RimLightMode ("Rimlight Mode", Float) = 0
 		_RimLightColor ("Rimlight Tint", Color) = (1,1,1,0.4)
 		_RimTex ("Rimlight Texture", 2D) = "white" {}
 		_RimWidth ("Rimlight Width", Range(0,1)) = 0.75
@@ -119,7 +119,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
-			#pragma shader_feature_local _RIMLIGHT_ON
+			#pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
 			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 			
 			#define NOENOETOON_RAMP_MASKING
@@ -197,7 +197,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 			#pragma shader_feature_local _CUBEMAP_ON
 			#pragma shader_feature_local _OUTLINE_ALPHA_WIDTH_ON
 			#pragma shader_feature_local _OUTLINE_SCREENSPACE
-			#pragma shader_feature_local _RIMLIGHT_ON
+			#pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
 			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 			
 			#define NOENOETOON_OUTLINE_PASS
@@ -331,7 +331,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
 			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
 			#pragma shader_feature_local _PANO_ON
 			#pragma shader_feature_local _CUBEMAP_ON
-			#pragma shader_feature_local _RIMLIGHT_ON
+			#pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
 			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 			
 			#define NOENOETOON_RAMP_MASKING
