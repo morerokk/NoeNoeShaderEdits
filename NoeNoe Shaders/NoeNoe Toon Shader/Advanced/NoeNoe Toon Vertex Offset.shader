@@ -108,6 +108,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
             #include "UnityStandardBRDF.cginc"
             #include "AutoLight.cginc"
             #pragma multi_compile_fwdbase_fullshadows
+			#pragma multi_compile _ VERTEXLIGHT_ON
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
 			#pragma shader_feature_local _ALPHATEST_ON
@@ -184,6 +185,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Vertex Offset" {
             #include "AutoLight.cginc"
             #pragma fragmentoption ARB_precision_hint_fastest
             //#pragma multi_compile_fwdbase_fullshadows
+			#pragma multi_compile _ VERTEXLIGHT_ON
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
 			#pragma shader_feature_local _ALPHATEST_ON

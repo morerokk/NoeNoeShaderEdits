@@ -245,6 +245,16 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	#else
 		// Regular toon lighting, sample ambient SH, add LightColor0 to a lesser extent
 		float3 FlatLighting = FlatLightSH(float3(0,0,0)) + (_LightColor0.rgb * attenuation * _Exposure);
+		
+		// In ForwardBase, add vertex lights
+		#if defined(VERTEXLIGHT_ON) && defined(UNITY_PASS_FORWARDBASE)
+			FlatLighting += Shade4PointLights(
+				unity_4LightPosX0, unity_4LightPosY0, unity_4LightPosZ0,
+				unity_LightColor[0].rgb, unity_LightColor[1].rgb,
+				unity_LightColor[2].rgb, unity_LightColor[3].rgb,
+				unity_4LightAtten0, i.posWorld, normalDirection
+			) * _Exposure;
+		#endif
 	#endif
 	
 	float3 MappedTexture = (_MainTex_var.rgb*mainColor.rgb);
