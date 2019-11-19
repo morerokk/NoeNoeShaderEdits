@@ -24,6 +24,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty intensity = null;
     private MaterialProperty saturation = null;
     private MaterialProperty exposure = null;
+    private MaterialProperty exposureToonRampContrast = null;
     private MaterialProperty lightMode = null;
 
     //Metallic
@@ -272,6 +273,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if(lightMode.floatValue != 2)
         {
             editor.ShaderProperty(exposure, new GUIContent("Exposure", "Controls the contribution of directional and realtime lights."));
+            editor.ShaderProperty(exposureToonRampContrast, new GUIContent("Exposure Toon Ramp Contrast", "As this value increases, the intensity of toon ramps on lighter surfaces increases."));
         }
 
         if(HasRampMasking())
@@ -638,6 +640,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         intensity = FindProperty("_Intensity", props);
         saturation = FindProperty("_Saturation", props);
         exposure = FindProperty("_Exposure", props);
+        exposureToonRampContrast = FindProperty("_ExposureContrast", props);
         lightMode = FindProperty("_LightingMode", props);
 
         //Metallic

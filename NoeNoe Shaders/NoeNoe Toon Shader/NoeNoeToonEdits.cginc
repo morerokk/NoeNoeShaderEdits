@@ -2,6 +2,7 @@ float _WorldLightIntensity;
 float _ReceiveShadows;
 float3 _EmissionColor;
 float _Exposure;
+float _ExposureContrast;
 
 #ifdef NOENOETOON_RAMP_MASKING
 	uniform sampler2D _RampMaskTex;
@@ -147,6 +148,11 @@ float3 CubemapRotator( float3 Dir , float AngX , float AngY , float AngZ )
 
 	return Val;
 }
+
+float3 AdjustContrastCurve(float3 color, float contrast) {
+	return pow(abs(color * 2 - 1), 1 / max(contrast, 0.0001)) * sign(color - 0.5) + 0.5;
+}
+
 
 struct VertexInput {
 	float4 vertex : POSITION;
@@ -478,7 +484,20 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
 	#endif
 	
 	float3 StaticToonLighting = node_9498.rgb;
-	float3 finalColor = ((IntensityVar*FlatLighting*Diffuse) > 0.5 ?  (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var)));
+	
+	#if defined(_LIGHTING_LEGACY_ON)
+		float3 finalColor = ((IntensityVar*FlatLighting*Diffuse) > 0.5 ? (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var)));
+	#else
+		// Dim the toon ramp effect as the area gets brighter
+		float toonContrastModifier = saturate(Luminance(IntensityVar*saturate(FlatLighting)*Diffuse));
+		toonContrastModifier = (1 - toonContrastModifier) * _ExposureContrast;
+		toonContrastModifier = smoothstep(0.5, 1, toonContrastModifier);
+		
+		ToonContrast_var *= toonContrastModifier;
+		
+		//float3 finalColor = ((IntensityVar*FlatLighting*Diffuse) < 0.5 ? (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var)) : (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))));		
+		float3 finalColor = (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var));
+	#endif
 	
 	#if defined(_LIGHTING_LEGACY_ON)
 		finalColor = saturate(finalColor);
