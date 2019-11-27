@@ -3,8 +3,8 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Main texture (RGB)", 2D) = "white" {}
         _StaticToonLight ("Static Toon Light", Vector) = (0,2.5,0,0)
-		_WorldLightIntensity ("World Light Dir Multiplier", Range(0, 10)) = 1
-		[Toggle(_OVERRIDE_WORLD_LIGHT_DIR_ON)] _OverrideWorldLight ("Override World Light", Float) = 0
+        _WorldLightIntensity ("World Light Dir Multiplier", Range(0, 10)) = 1
+        [Toggle(_OVERRIDE_WORLD_LIGHT_DIR_ON)] _OverrideWorldLight ("Override World Light", Float) = 0
         [Toggle(_)] _BillboardStaticLight ("Billboard Static Light", Float ) = 0
         _Ramp ("Ramp", 2D) = "white" {}
         _ToonContrast ("Toon Contrast", Range(0, 1)) = 0.25
@@ -12,40 +12,40 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
         _EmissionColor ("Emission", Color) = (0,0,0)
         _Intensity ("Intensity", Range(0, 10)) = 0.8
         _Saturation ("Saturation", Range(0, 1)) = 0.65
-		_Exposure ("Exposure", Range(0, 1)) = 0.6
-		_ExposureContrast ("Exposure Toon Ramp Contrast", Range(0, 2)) = 1.15
-		[Enum(Toon,0,PBR,1,Legacy Toon,2)] _LightingMode ("Lighting Mode", Float) = 0
+        _Exposure ("Exposure", Range(0, 1)) = 0.7
+        _ExposureContrast ("Exposure Toon Ramp Contrast", Range(0, 2)) = 1.15
+        [Enum(Toon,0,PBR,1,Legacy Toon,2)] _LightingMode ("Lighting Mode", Float) = 0
         _NormalMap ("Normal Map", 2D) = "bump" {}
-		[Toggle(_ALPHATEST_ON)] _Mode ("Cutout", Float) = 0
+        [Toggle(_ALPHATEST_ON)] _Mode ("Cutout", Float) = 0
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
-		[Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 0
-		[Enum(None,0,Metallic,1,Specular,2)] _MetallicMode("Metallic Mode", Float) = 0
-		[NoScaleOffset] _MetallicGlossMap("Metallic Map", 2D) = "white" {}
-		_Metallic("Metallic", Range( 0 , 1)) = 0
-		_Glossiness("Smoothness", Range( 0 , 1)) = 0
+        [Enum(Both,0,Front,2,Back,1)] _Cull("Sidedness", Float) = 0
+        [Enum(None,0,Metallic,1,Specular,2)] _MetallicMode("Metallic Mode", Float) = 0
+        [NoScaleOffset] _MetallicGlossMap("Metallic Map", 2D) = "white" {}
+        _Metallic("Metallic", Range( 0 , 1)) = 0
+        _Glossiness("Smoothness", Range( 0 , 1)) = 0
         _SpecColor("Specular Color", Color) = (0,0,0,0)
         _SpecGlossMap("Specular Map", 2D) = "white" {}
-		[Toggle(_SHADOW_RECEIVE_ON)] _ReceiveShadows ("Receive Shadows", Float) = 0
-		_MatCap ("Matcap Texture", 2D) = "white" {}
-		[Enum(Off,0,Additive (spa),1,Multiply (sph),2)] _MatCapMode ("Matcap Mode", Float) = 0
-		_MatCapStrength ("Matcap Strength", Range(0, 1)) = 1
-		_OverlayStrength ("Overlay Strength", Range(0, 1)) = 1
-		[Enum(Replace,0,Multiply,1)] _OverlayMode ("Overlay Mode", Float) = 0
-		[Toggle(_PANO_ON)] _PanoEnabled ("Panosphere Enabled", Float) = 0
+        [Toggle(_SHADOW_RECEIVE_ON)] _ReceiveShadows ("Receive Shadows", Float) = 0
+        _MatCap ("Matcap Texture", 2D) = "white" {}
+        [Enum(Off,0,Additive (spa),1,Multiply (sph),2)] _MatCapMode ("Matcap Mode", Float) = 0
+        _MatCapStrength ("Matcap Strength", Range(0, 1)) = 1
+        _OverlayStrength ("Overlay Strength", Range(0, 1)) = 1
+        [Enum(Replace,0,Multiply,1)] _OverlayMode ("Overlay Mode", Float) = 0
+        [Toggle(_PANO_ON)] _PanoEnabled ("Panosphere Enabled", Float) = 0
         _TileOverlay ("Panosphere Texture", 2D) = "white" {}
         _TileSpeedX ("Pano Rotation Speed X", Range(-1, 1)) = 0
         _TileSpeedY ("Pano Rotation Speed Y", Range(-1, 1)) = 0
-		[Toggle(_CUBEMAP_ON)] _CubemapEnabled ("Cubemap Enabled", Float) = 0
+        [Toggle(_CUBEMAP_ON)] _CubemapEnabled ("Cubemap Enabled", Float) = 0
         _CubemapOverlay ("Cubemap Texture", Cube) = "_Skybox" {}
         _CubemapRotationSpeed ("Cubemap Rotation Speed", Vector) = (0,0,0,0)
         _CrossfadeTileCubemap ("Crossfade Pano / Cubemap", Range(0, 1)) = 0.5
-		
-		[Enum(Off,0,Add,1,Mix,2)] _RimLightMode ("Rimlight Mode", Float) = 0
-		_RimLightColor ("Rimlight Tint", Color) = (1,1,1,0.4)
-		_RimTex ("Rimlight Texture", 2D) = "white" {}
-		_RimWidth ("Rimlight Width", Range(0,1)) = 0.75
-		[Toggle(_)] _RimInvert ("Invert Rimlight", Float) = 0
-		
+        
+        [Enum(Off,0,Add,1,Mix,2)] _RimLightMode ("Rimlight Mode", Float) = 0
+        _RimLightColor ("Rimlight Tint", Color) = (1,1,1,0.4)
+        _RimTex ("Rimlight Texture", 2D) = "white" {}
+        _RimWidth ("Rimlight Width", Range(0,1)) = 0.75
+        [Toggle(_)] _RimInvert ("Invert Rimlight", Float) = 0
+        
     }
     SubShader {
         Tags {
@@ -57,16 +57,16 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
                 "LightMode"="ForwardBase"
             }
             
-			Cull [_Cull]
+            Cull [_Cull]
             
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-			
-			#ifndef UNITY_PASS_FORWARDBASE
-				#define UNITY_PASS_FORWARDBASE
-			#endif
-			
+            
+            #ifndef UNITY_PASS_FORWARDBASE
+                #define UNITY_PASS_FORWARDBASE
+            #endif
+            
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -75,30 +75,30 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
             #include "UnityStandardBRDF.cginc"
             #include "AutoLight.cginc"
             #pragma multi_compile_fwdbase_fullshadows
-			#pragma multi_compile _ VERTEXLIGHT_ON
+            #pragma multi_compile _ VERTEXLIGHT_ON
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature_local _ALPHATEST_ON
-			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
-			#pragma shader_feature_local _NORMALMAP
-			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
-			#pragma shader_feature_local _SHADOW_RECEIVE_ON
-			#pragma shader_feature_local _EMISSION
-			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
-			#pragma shader_feature_local _PANO_ON
-			#pragma shader_feature_local _CUBEMAP_ON
-			#pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
-			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
+            #pragma shader_feature_local _ALPHATEST_ON
+            #pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
+            #pragma shader_feature_local _SHADOW_RECEIVE_ON
+            #pragma shader_feature_local _EMISSION
+            #pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
+            #pragma shader_feature_local _PANO_ON
+            #pragma shader_feature_local _CUBEMAP_ON
+            #pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
+            #pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
-			
-			float _Cutoff;
-			
-			float _OverrideWorldLight;
+            
+            float _Cutoff;
+            
+            float _OverrideWorldLight;
             
             uniform float4 _StaticToonLight;
             uniform sampler2D _Ramp; uniform float4 _Ramp_ST;
@@ -118,9 +118,9 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
             uniform float _Saturation;
             uniform fixed _BillboardStaticLight;
             uniform float _ToonContrast;
-			
-			#include "NoeNoeToonEdits.cginc"
-			
+            
+            #include "NoeNoeToonEdits.cginc"
+            
             ENDCG
         }
         Pass {
@@ -130,16 +130,16 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
             }
             Blend One One
             
-			Cull [_Cull]            
+            Cull [_Cull]            
             
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-			
-			#ifndef UNITY_PASS_FORWARDADD
-				#define UNITY_PASS_FORWARDADD
-			#endif
-			
+            
+            #ifndef UNITY_PASS_FORWARDADD
+                #define UNITY_PASS_FORWARDADD
+            #endif
+            
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "AutoLight.cginc"
@@ -150,27 +150,27 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
             #pragma multi_compile_fwdadd_fullshadows
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature_local _ALPHATEST_ON
-			#pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
-			#pragma shader_feature_local _NORMALMAP
-			#pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
-			#pragma shader_feature_local _SHADOW_RECEIVE_ON
-			#pragma shader_feature_local _EMISSION
-			#pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
-			#pragma shader_feature_local _PANO_ON
-			#pragma shader_feature_local _CUBEMAP_ON
-			#pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
-			#pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
+            #pragma shader_feature_local _ALPHATEST_ON
+            #pragma shader_feature_local _ _METALLICGLOSSMAP _SPECGLOSSMAP
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _OVERRIDE_WORLD_LIGHT_DIR_ON
+            #pragma shader_feature_local _SHADOW_RECEIVE_ON
+            #pragma shader_feature_local _EMISSION
+            #pragma shader_feature_local _ _MATCAP_ADD _MATCAP_MULTIPLY
+            #pragma shader_feature_local _PANO_ON
+            #pragma shader_feature_local _CUBEMAP_ON
+            #pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
+            #pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
             uniform sampler2D _NormalMap; uniform float4 _NormalMap_ST;
             uniform float _Intensity;
-			
-			float _Cutoff;
-			
-			float _OverrideWorldLight;
+            
+            float _Cutoff;
+            
+            float _OverrideWorldLight;
             
             uniform float4 _StaticToonLight;
             uniform sampler2D _Ramp; uniform float4 _Ramp_ST;
@@ -191,7 +191,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
             uniform fixed _BillboardStaticLight;
             uniform float _ToonContrast;
 
-			#include "NoeNoeToonEdits.cginc"
+            #include "NoeNoeToonEdits.cginc"
             ENDCG
         }
         Pass {
@@ -201,16 +201,16 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
             }
             Offset 1, 1
             
-			Cull [_Cull]
+            Cull [_Cull]
             
             CGPROGRAM
             #pragma vertex vertShadow
             #pragma fragment fragShadow
-			
-			#ifndef UNITY_PASS_SHADOWCASTER
-				#define UNITY_PASS_SHADOWCASTER
-			#endif
-			
+            
+            #ifndef UNITY_PASS_SHADOWCASTER
+                #define UNITY_PASS_SHADOWCASTER
+            #endif
+            
             #define _GLOSSYENV 1
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
@@ -221,15 +221,15 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon" {
             #pragma multi_compile_shadowcaster
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
-			#pragma shader_feature_local _ALPHATEST_ON
+            #pragma shader_feature_local _ALPHATEST_ON
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
-			
-			float _Cutoff;
-			
+            
+            float _Cutoff;
+            
             #include "NoeNoeShadowCaster.cginc"
-			
+            
             ENDCG
         }
     }
-	CustomEditor "NoeNoeToonEditorGUI"
+    CustomEditor "NoeNoeToonEditorGUI"
 }
