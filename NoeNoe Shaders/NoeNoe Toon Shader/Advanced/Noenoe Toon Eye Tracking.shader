@@ -43,6 +43,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/Advanced/NoeNoe Toon Eye Tracking" {
         _TileSpeedY ("Pano Rotation Speed Y", Range(-1, 1)) = 0
         [Toggle(_CUBEMAP_ON)] _CubemapEnabled ("Cubemap Enabled", Float) = 0
         _CubemapOverlay ("Cubemap Texture", Cube) = "_Skybox" {}
+        _CubemapRotation ("Cubemap Initial Rotation", Vector) = (0,0,0,0)
         _CubemapRotationSpeed ("Cubemap Rotation Speed", Vector) = (0,0,0,0)
         _CrossfadeTileCubemap ("Crossfade Pano / Cubemap", Range(0, 1)) = 0.5
         

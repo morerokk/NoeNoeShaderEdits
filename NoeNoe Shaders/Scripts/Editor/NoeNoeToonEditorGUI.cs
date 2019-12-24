@@ -97,6 +97,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     //Cubemap
     private MaterialProperty cubemapEnabled = null;
     private MaterialProperty cubemapTex = null;
+    private MaterialProperty cubemapInitialRotation = null;
     private MaterialProperty cubemapRotationSpeed = null;
 
     //Rimlight
@@ -507,6 +508,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         editor.ShaderProperty(cubemapEnabled, new GUIContent("Cubemap Enabled"));
         EditorGUI.BeginDisabledGroup(cubemapEnabled.floatValue == 0);
         this.TextureProperty(cubemapTex, "Cubemap Texture");
+        editor.VectorProperty(cubemapInitialRotation, "Cubemap Initial Rotation");
         editor.VectorProperty(cubemapRotationSpeed, "Cubemap Rotation Speed");
         EditorGUI.EndDisabledGroup();
 
@@ -522,11 +524,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         }
 
         // Display warning if crossfade is either 0 or 1
-        if((panosphereEnabled.floatValue == 1 || cubemapEnabled.floatValue == 1) && panoCubeCrossfade.floatValue == 0)
+        if((panosphereEnabled.floatValue == 1 && cubemapEnabled.floatValue == 1) && panoCubeCrossfade.floatValue == 0)
         {
             EditorGUILayout.HelpBox("Cubemap has no influence. Consider disabling the cubemap for performance.", MessageType.Warning);
         }
-        else if((panosphereEnabled.floatValue == 1 || cubemapEnabled.floatValue == 1) && panoCubeCrossfade.floatValue == 1)
+        else if((panosphereEnabled.floatValue == 1 && cubemapEnabled.floatValue == 1) && panoCubeCrossfade.floatValue == 1)
         {
             EditorGUILayout.HelpBox("Panosphere has no influence. Consider disabling the panosphere for performance.", MessageType.Warning);
         }
@@ -713,6 +715,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
 
         cubemapEnabled = FindProperty("_CubemapEnabled", props);
         cubemapTex = FindProperty("_CubemapOverlay", props);
+        cubemapInitialRotation = FindProperty("_CubemapRotation", props);
         cubemapRotationSpeed = FindProperty("_CubemapRotationSpeed", props);
 
         //Rimlight stuff

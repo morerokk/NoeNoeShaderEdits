@@ -52,6 +52,7 @@ float _Glossiness;
     
     #ifdef _CUBEMAP_ON
         samplerCUBE _CubemapOverlay;
+        float4 _CubemapRotation;
         float4 _CubemapRotationSpeed;
     #endif
 #endif
@@ -149,10 +150,14 @@ float3 CubemapRotator( float3 Dir , float AngX , float AngY , float AngZ )
     return Val;
 }
 
-float3 AdjustContrastCurve(float3 color, float contrast) {
-    return pow(abs(color * 2 - 1), 1 / max(contrast, 0.0001)) * sign(color - 0.5) + 0.5;
+float3 VRWorldSpaceCameraPos()
+{
+    #if defined(USING_STEREO_MATRICES)
+        return lerp(unity_StereoWorldSpaceCameraPos[0], unity_StereoWorldSpaceCameraPos[1], 0.5);
+    #else
+        return _WorldSpaceCameraPos;
+    #endif
 }
-
 
 struct VertexInput {
     float4 vertex : POSITION;
@@ -326,8 +331,13 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
     #endif
     
     // Overlay
+    #if defined(_PANO_ON) || defined(_CUBEMAP_ON)
+        // Get a flat view direction for panospheres and cubemaps, so they can appear infinitely far away.
+        float3 flatViewDirection = VRWorldSpaceCameraPos() - i.posWorld.xyz;
+    #endif
+    
     #if defined(_PANO_ON)
-        float2 panoUV = PanoProjection(-viewDirection);
+        float2 panoUV = PanoProjection(-flatViewDirection);
         float2 ddxuv = ddx(panoUV);
         float2 ddyuv = ddy(panoUV);
         if(any(fwidth(panoUV) > .5))
@@ -340,8 +350,8 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
     #endif
     
     #if defined(_CUBEMAP_ON)
-        float4 cubeRotation = _CubemapRotationSpeed * _Time.y;
-        float3 RotatedCubemapDirection = CubemapRotator(viewDirection.xyz, cubeRotation.x, cubeRotation.y, cubeRotation.z);
+        float4 cubeRotation = _CubemapRotation + (_CubemapRotationSpeed * _Time.y);
+        float3 RotatedCubemapDirection = CubemapRotator(-flatViewDirection, cubeRotation.x, cubeRotation.y + 180, cubeRotation.z);
         float4 cubeOverlay = texCUBE(_CubemapOverlay, RotatedCubemapDirection);
     #endif
     
