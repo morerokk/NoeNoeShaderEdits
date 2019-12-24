@@ -489,14 +489,14 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
         float3 finalColor = ((IntensityVar*FlatLighting*Diffuse) > 0.5 ? (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var)));
     #else
         // Dim the toon ramp effect as the area gets brighter
-        float toonContrastModifier = saturate(Luminance(IntensityVar*saturate(FlatLighting)*Diffuse));
+        float3 toonContrastModifier = (IntensityVar*saturate(FlatLighting)*Diffuse);
         toonContrastModifier = (1 - toonContrastModifier) * _ExposureContrast;
         toonContrastModifier = smoothstep(0.5, 1, toonContrastModifier);
         
-        ToonContrast_var *= toonContrastModifier;
+        toonContrastModifier *= ToonContrast_var;
         
-        //float3 finalColor = ((IntensityVar*FlatLighting*Diffuse) < 0.5 ? (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var)) : (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))));      
-        float3 finalColor = (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var));
+        float3 finalColor = 2 * (IntensityVar*FlatLighting*Diffuse);
+        finalColor *= lerp(float3(0.5, 0.5, 0.5), StaticToonLighting, toonContrastModifier);
     #endif
     
     #if defined(_LIGHTING_LEGACY_ON)
