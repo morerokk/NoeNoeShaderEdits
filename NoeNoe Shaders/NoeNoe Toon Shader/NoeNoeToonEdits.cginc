@@ -1,3 +1,24 @@
+// Add macros for shadowless light attenuation
+#ifdef POINT
+	#define SHADOWLESS_LIGHT_ATTENUATION(a) (tex2D(_LightTexture0, dot(a._LightCoord,a._LightCoord).rr).r)
+#endif
+
+#ifdef SPOT
+	#define SHADOWLESS_LIGHT_ATTENUATION(a) ( (a._LightCoord.z > 0) * UnitySpotCookie(a._LightCoord) * UnitySpotAttenuate(a._LightCoord.xyz))
+#endif
+
+#ifdef DIRECTIONAL
+	#define SHADOWLESS_LIGHT_ATTENUATION(a) 1
+#endif
+
+#ifdef POINT_COOKIE
+	#define SHADOWLESS_LIGHT_ATTENUATION(a) (tex2D(_LightTextureB0, dot(a._LightCoord,a._LightCoord).rr).r * texCUBE(_LightTexture0, a._LightCoord).w)
+#endif
+
+#ifdef DIRECTIONAL_COOKIE
+	#define SHADOWLESS_LIGHT_ATTENUATION(a)(tex2D(_LightTexture0, a._LightCoord).w)
+#endif
+
 float _WorldLightIntensity;
 float _ReceiveShadows;
 float3 _EmissionColor;
@@ -67,18 +88,7 @@ float _Glossiness;
 
 float3 GIsonarDirection()
 {
-    float3 GIsonar_dir_vec = (unity_SHAr.xyz*unity_SHAr.w + unity_SHAg.xyz*unity_SHAg.w + unity_SHAb.xyz*unity_SHAb.w);
-
-    UNITY_FLATTEN
-    if ( length( GIsonar_dir_vec) > 0)
-    {
-        GIsonar_dir_vec = Unity_SafeNormalize(GIsonar_dir_vec);
-    }
-    else 
-    {
-        GIsonar_dir_vec = float3(0,0,0);
-    }
-    return GIsonar_dir_vec;
+    return Unity_SafeNormalize(unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz);
 }
 
 float4 lightDirection(float4 fallback)
@@ -199,7 +209,13 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
     #if defined(_OVERRIDE_WORLD_LIGHT_DIR_ON)
         float4 staticLightDir = _StaticToonLight;
     #else
-        float4 staticLightDir = lightDirection(_StaticToonLight);
+		// If point or spot light, calculate the light direction from its position
+		// If the light is directional or the current pass is forwardbase, grab _WorldSpaceLightPos0 as light direction
+		#if defined(UNITY_PASS_FORWARDADD) && !defined(DIRECTIONAL)
+			float4 staticLightDir = float4(normalize(_WorldSpaceLightPos0.xyz - i.posWorld.xyz), 0) * _WorldLightIntensity;
+		#else
+			float4 staticLightDir = lightDirection(_StaticToonLight);
+		#endif
     #endif
     
     i.normalDir = normalize(i.normalDir);
@@ -244,7 +260,7 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
         UNITY_LIGHT_ATTENUATION(attenuation, i, i.posWorld.xyz);
     #else
         // Disable shadow receiving entirely
-        float attenuation = LIGHT_ATTENUATION(i) / SHADOW_ATTENUATION(i);
+        float attenuation = SHADOWLESS_LIGHT_ATTENUATION(i);
     #endif
     
     #if defined(_LIGHTING_PBR_ON)
