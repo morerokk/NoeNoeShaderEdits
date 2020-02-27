@@ -24,6 +24,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
     private MaterialProperty intensity = null;
     private MaterialProperty saturation = null;
     private MaterialProperty exposure = null;
+    private MaterialProperty toonRampDimmingEnabled = null;
     private MaterialProperty exposureToonRampContrast = null;
     private MaterialProperty lightMode = null;
 
@@ -274,7 +275,11 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         if(lightMode.floatValue != 2)
         {
             editor.ShaderProperty(exposure, new GUIContent("Exposure", "Controls the contribution of directional and realtime lights."));
-            editor.ShaderProperty(exposureToonRampContrast, new GUIContent("Exposure Toon Ramp Contrast", "As this value increases, the intensity of toon ramps on lighter surfaces increases."));
+            editor.ShaderProperty(toonRampDimmingEnabled, new GUIContent("Toon Ramp Dimming", "If enabled, the toon ramp's intensity will decrease as the surface gets brighter."));
+            if (toonRampDimmingEnabled.floatValue == 1)
+            {
+                editor.ShaderProperty(exposureToonRampContrast, new GUIContent("Exposure Toon Ramp Contrast", "As this value increases, the intensity of toon ramps on lighter surfaces increases."));
+            }
         }
 
         if(HasRampMasking())
@@ -642,6 +647,7 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         intensity = FindProperty("_Intensity", props);
         saturation = FindProperty("_Saturation", props);
         exposure = FindProperty("_Exposure", props);
+        toonRampDimmingEnabled = FindProperty("_ToonRampDimming", props);
         exposureToonRampContrast = FindProperty("_ExposureContrast", props);
         lightMode = FindProperty("_LightingMode", props);
 
@@ -876,6 +882,12 @@ public class NoeNoeToonEditorGUI : ShaderGUI
         else if(lightMode.floatValue == 2)
         {
             material.EnableKeyword("_LIGHTING_LEGACY_ON");
+        }
+
+        // Toon ramp dimming
+        if(lightMode.floatValue != 2 && toonRampDimmingEnabled.floatValue == 1)
+        {
+            material.EnableKeyword("_TOON_RAMP_DIMMING");
         }
     }
 

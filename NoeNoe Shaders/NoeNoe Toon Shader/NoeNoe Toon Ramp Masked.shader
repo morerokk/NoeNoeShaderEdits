@@ -13,7 +13,8 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Ramp Masked" {
         _Intensity ("Default Intensity", Range(0, 10)) = 0.8
         _Saturation ("Default Saturation", Range(0, 1)) = 0.65
         _Exposure ("Exposure", Range(0, 1)) = 0.7
-        _ExposureContrast ("Exposure Toon Ramp Contrast", Range(0, 4)) = 2
+        [Toggle(_TOON_RAMP_DIMMING)] _ToonRampDimming ("Toon Ramp Dimming", Float) = 0
+        _ExposureContrast ("Exposure Toon Ramp Contrast", Range(0, 4)) = 3
         [Enum(Toon,0,PBR,1,Legacy Toon,2)] _LightingMode ("Lighting Mode", Float) = 0
         _NormalMap ("Normal Map", 2D) = "bump" {}
         [Toggle(_ALPHATEST_ON)] _Mode ("Cutout", Float) = 0
@@ -86,7 +87,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Ramp Masked" {
             #include "UnityStandardBRDF.cginc"
             #include "AutoLight.cginc"
             #pragma multi_compile_fwdbase_fullshadows
-			#pragma multi_compile _ VERTEXLIGHT_ON
+            #pragma multi_compile _ VERTEXLIGHT_ON
             #pragma only_renderers d3d9 d3d11 glcore gles 
             #pragma target 3.0
             #pragma shader_feature_local _ALPHATEST_ON
@@ -100,6 +101,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Ramp Masked" {
             #pragma shader_feature_local _CUBEMAP_ON
             #pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
             #pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
+            #pragma shader_feature_local _ _TOON_RAMP_DIMMING
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
@@ -174,6 +176,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Ramp Masked" {
             #pragma shader_feature_local _CUBEMAP_ON
             #pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
             #pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
+            #pragma shader_feature_local _ _TOON_RAMP_DIMMING
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;

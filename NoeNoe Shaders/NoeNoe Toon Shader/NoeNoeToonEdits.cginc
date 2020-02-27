@@ -1,22 +1,22 @@
 // Add macros for shadowless light attenuation
 #ifdef POINT
-	#define SHADOWLESS_LIGHT_ATTENUATION(a) (tex2D(_LightTexture0, dot(a._LightCoord,a._LightCoord).rr).r)
+    #define SHADOWLESS_LIGHT_ATTENUATION(a) (tex2D(_LightTexture0, dot(a._LightCoord,a._LightCoord).rr).r)
 #endif
 
 #ifdef SPOT
-	#define SHADOWLESS_LIGHT_ATTENUATION(a) ( (a._LightCoord.z > 0) * UnitySpotCookie(a._LightCoord) * UnitySpotAttenuate(a._LightCoord.xyz))
+    #define SHADOWLESS_LIGHT_ATTENUATION(a) ( (a._LightCoord.z > 0) * UnitySpotCookie(a._LightCoord) * UnitySpotAttenuate(a._LightCoord.xyz))
 #endif
 
 #ifdef DIRECTIONAL
-	#define SHADOWLESS_LIGHT_ATTENUATION(a) 1
+    #define SHADOWLESS_LIGHT_ATTENUATION(a) 1
 #endif
 
 #ifdef POINT_COOKIE
-	#define SHADOWLESS_LIGHT_ATTENUATION(a) (tex2D(_LightTextureB0, dot(a._LightCoord,a._LightCoord).rr).r * texCUBE(_LightTexture0, a._LightCoord).w)
+    #define SHADOWLESS_LIGHT_ATTENUATION(a) (tex2D(_LightTextureB0, dot(a._LightCoord,a._LightCoord).rr).r * texCUBE(_LightTexture0, a._LightCoord).w)
 #endif
 
 #ifdef DIRECTIONAL_COOKIE
-	#define SHADOWLESS_LIGHT_ATTENUATION(a)(tex2D(_LightTexture0, a._LightCoord).w)
+    #define SHADOWLESS_LIGHT_ATTENUATION(a) (tex2D(_LightTexture0, a._LightCoord).w)
 #endif
 
 float _WorldLightIntensity;
@@ -209,13 +209,13 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
     #if defined(_OVERRIDE_WORLD_LIGHT_DIR_ON)
         float4 staticLightDir = _StaticToonLight;
     #else
-		// If point or spot light, calculate the light direction from its position
-		// If the light is directional or the current pass is forwardbase, grab _WorldSpaceLightPos0 as light direction
-		#if defined(UNITY_PASS_FORWARDADD) && !defined(DIRECTIONAL)
-			float4 staticLightDir = float4(normalize(_WorldSpaceLightPos0.xyz - i.posWorld.xyz), 0) * _WorldLightIntensity;
-		#else
-			float4 staticLightDir = lightDirection(_StaticToonLight);
-		#endif
+        // If point or spot light, calculate the light direction from its position
+        // If the light is directional or the current pass is forwardbase, grab _WorldSpaceLightPos0 as light direction
+        #if defined(UNITY_PASS_FORWARDADD) && !defined(DIRECTIONAL)
+            float4 staticLightDir = float4(normalize(_WorldSpaceLightPos0.xyz - i.posWorld.xyz), 0) * _WorldLightIntensity;
+        #else
+            float4 staticLightDir = lightDirection(_StaticToonLight);
+        #endif
     #endif
     
     i.normalDir = normalize(i.normalDir);
@@ -514,12 +514,17 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
     #if defined(_LIGHTING_LEGACY_ON)
         float3 finalColor = ((IntensityVar*FlatLighting*Diffuse) > 0.5 ? (1.0-(1.0-2.0*((IntensityVar*FlatLighting*Diffuse)-0.5))*(1.0-lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var))) : (2.0*(IntensityVar*FlatLighting*Diffuse)*lerp(float3(node_424,node_424,node_424),StaticToonLighting,ToonContrast_var)));
     #else
-        // Dim the toon ramp effect as the area gets brighter
-        float3 toonContrastModifier = (IntensityVar*saturate(FlatLighting)*Diffuse);
-        toonContrastModifier = (1 - toonContrastModifier) * _ExposureContrast;
-        toonContrastModifier = smoothstep(0.5, 1, toonContrastModifier);
-        
-        toonContrastModifier *= ToonContrast_var;
+    
+        #if defined(_TOON_RAMP_DIMMING)
+            // Dim the toon ramp effect as the area gets brighter
+            float3 toonContrastModifier = (IntensityVar*saturate(FlatLighting)*Diffuse);
+            toonContrastModifier = (1 - toonContrastModifier) * _ExposureContrast;
+            toonContrastModifier = smoothstep(0.5, 1, toonContrastModifier);
+            
+            toonContrastModifier *= ToonContrast_var;
+        #else
+            float3 toonContrastModifier = float3(ToonContrast_var, ToonContrast_var, ToonContrast_var);
+        #endif
         
         float3 finalColor = 2 * (IntensityVar*FlatLighting*Diffuse);
         finalColor *= lerp(float3(0.5, 0.5, 0.5), StaticToonLighting, toonContrastModifier);
@@ -532,8 +537,6 @@ float4 frag(VertexOutput i, float facing : VFACE) : COLOR {
     #if defined(_METALLICGLOSSMAP) || defined(_SPECGLOSSMAP)
         // Apply unlit reflections
         #ifdef UNITY_PASS_FORWARDBASE
-            // TODO: If reflecting the skybox rather than a probe, dim the reflection.
-            // Is that even possible? If so, tell me how ;)
             finalColor = lerp(finalColor, reflectionColor, metallic);
         #endif
         

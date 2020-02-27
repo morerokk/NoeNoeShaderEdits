@@ -13,7 +13,8 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Outline" {
         _Intensity ("Intensity", Range(0, 10)) = 0.8
         _Saturation ("Saturation", Range(0, 1)) = 0.65
         _Exposure ("Exposure", Range(0, 1)) = 0.7
-        _ExposureContrast ("Exposure Toon Ramp Contrast", Range(0, 4)) = 2
+        [Toggle(_TOON_RAMP_DIMMING)] _ToonRampDimming ("Toon Ramp Dimming", Float) = 0
+        _ExposureContrast ("Exposure Toon Ramp Contrast", Range(0, 4)) = 3
         [Enum(Toon,0,PBR,1,Legacy Toon,2)] _LightingMode ("Lighting Mode", Float) = 0
         _NormalMap ("Normal Map", 2D) = "bump" {}
         [Enum(None,0,Metallic,1,Specular,2)] _MetallicMode("Metallic Mode", Float) = 0
@@ -102,6 +103,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Outline" {
             #pragma shader_feature_local _CUBEMAP_ON
             #pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
             #pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
+            #pragma shader_feature_local _ _TOON_RAMP_DIMMING
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
@@ -178,6 +180,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Outline" {
             #pragma shader_feature_local _OUTLINE_SCREENSPACE
             #pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
             #pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
+            #pragma shader_feature_local _ _TOON_RAMP_DIMMING
             
             #define NOENOETOON_OUTLINE_PASS
             
@@ -291,6 +294,7 @@ Shader "NoeNoe/NoeNoe Toon Shader/NoeNoe Toon Outline" {
             #pragma shader_feature_local _CUBEMAP_ON
             #pragma shader_feature_local _ _RIMLIGHT_ADD _RIMLIGHT_MIX
             #pragma shader_feature_local _ _LIGHTING_PBR_ON _LIGHTING_LEGACY_ON
+            #pragma shader_feature_local _ _TOON_RAMP_DIMMING
 
             uniform float4 _Color;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
